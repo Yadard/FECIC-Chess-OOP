@@ -3,6 +3,7 @@
 
 #include "./../Move.hpp"
 #include <SFML/Graphics.hpp>
+#include <functional>
 #include <vector>
 
 #ifndef MAX_MOVES_AMOUNT
