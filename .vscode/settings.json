@@ -85,6 +85,10 @@
         "fuchsia-default-arguments-calls"
     ],
     "cSpell.words": [
-        "Killzones"
+        "gameloop",
+        "hitbox",
+        "Killzones",
+        "MAINMENU",
+        "PIXABLER"
     ],
 }
