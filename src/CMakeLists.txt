@@ -44,6 +44,18 @@ if (WIN32 AND BUILD_SHARED_LIBS)
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:Chess-FECIC> $<TARGET_FILE_DIR:Chess-FECIC> COMMAND_EXPAND_LISTS)
 endif()
 
+set_target_properties( 
+    Chess-FECIC
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+set (source "${CMAKE_SOURCE_DIR}/assets")
+set (destination "${CMAKE_BINARY_DIR}")
+
+
 target_link_libraries(Chess-FECIC
     PRIVATE
         sfml-audio
@@ -53,5 +65,5 @@ target_link_libraries(Chess-FECIC
 )
 
 
-file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${source} DESTINATION ${destination})
 install(TARGETS Chess-FECIC DESTINATION ${CHESS_FECIC_INSTALL_BIN_DIR})

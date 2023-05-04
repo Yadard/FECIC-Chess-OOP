@@ -69,7 +69,9 @@
         "*.inc": "cpp",
         "stack": "cpp",
         "codecvt": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "optional": "cpp",
+        "variant": "cpp"
     },
     "C_Cpp.files.exclude": {
         "**/build": true,

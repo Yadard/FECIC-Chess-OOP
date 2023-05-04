@@ -18,14 +18,13 @@ else(PACK)
     set(CHESS_FECIC_INSTALL_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 endif(PACK)
 
-message("include: ${CHESS_FECIC_INSTALL_INCLUDE_DIR}")
-
 include(CTest)
 enable_testing()
 
 include_directories(${CHESS_FECIC_INSTALL_INCLUDE_DIR})
 
 add_subdirectory(src)
+add_subdirectory(test)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
