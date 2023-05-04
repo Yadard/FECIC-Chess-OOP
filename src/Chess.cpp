@@ -8,6 +8,9 @@ Chess::Chess()
     this->_event_handlers[sf::Event::EventType::Closed] = std::bind(&Chess::onWindowClose, this, std::placeholders::_1);
 }
 
+auto Chess::registerSprite(std::string key, sf::Sprite &sprite) -> void { this->sprites[key] = sprite; }
+auto Chess::getSprite(std::string key) -> const sf::Sprite & { return this->sprites.at(key); }
+
 auto Chess::run() -> void {
     while (_render.isOpen()) {
 
@@ -55,39 +58,56 @@ auto Chess::addPiece(std::unique_ptr<Piece> piece) -> void {
 auto Chess::onMouseButtonPress(sf::Event &event) -> void {
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
         Tile *tile = _board.getTileFromMousePostion({event.mouseButton.x, event.mouseButton.y});
-        if (selected_piece) {
+        if (!tile)
+            return;
+        if (selected_piece && *selected_piece) {
             if (tile->move.get()) {
-                std::unique_ptr<Piece> dest = std::move(_board.executeMove(*tile->move));
-                if (dest) {
+                bool reached_end = false;
+                if ((*selected_piece)->getTeam() == Team::STARTER) {
+                    reached_end = tile->move->getMoveDestination().y == 7;
+                } else {
+                    reached_end = tile->move->getMoveDestination().y == 0;
+                }
+                std::unique_ptr<Piece> &dest = _board.executeMove(*tile->move);
+                Move move(dest.get(), tile->move->getMoveDestination(), tile->move->getMoveOrigin());
+                _history.registryMove(move);
+                _board.clearHighlightMoves(dest.get());
+
+                if (dest->onMove)
+                    dest->onMove(tile->move->getMoveDestination());
+                if (reached_end && dest->onReachEnd)
+                    dest->onReachEnd(dest, this->sprites);
+                if (selected_piece && *selected_piece) {
                     if (current_turn == Team::STARTER) {
-                        _killzones.last_team.addPiece(dest->getSprite());
-                        dest->onDie();
+                        _killzones.last_team.addPiece((*selected_piece)->getSprite());
                     } else {
-                        _killzones.starter_team.addPiece(dest->getSprite());
-                        dest->onDie();
+                        _killzones.starter_team.addPiece((*selected_piece)->getSprite());
                     }
-                    dest.release();
+                    if ((*selected_piece)->onDie)
+                        (*selected_piece)->onDie();
+                    selected_piece->release();
                 }
 
-                _history.registryMove(*tile->move);
-                _board.clearHighlightMoves(selected_piece);
                 selected_piece = nullptr;
+                tile->move.reset();
                 endTurn();
             } else {
+                _board.clearHighlightMoves(selected_piece->get());
                 selected_piece = nullptr;
-                _board.clearHighlightMoves(selected_piece);
             }
         } else {
             if (tile->piece) {
                 if (tile->piece->getTeam() == current_turn) {
-                    selected_piece = tile->piece.get();
-                    _board.highlightMoves(selected_piece);
+                    selected_piece = &tile->piece;
+                    _board.highlightMoves(selected_piece->get());
                 }
             }
         }
     } else if (event.mouseButton.button == sf::Mouse::Button::Right) {
-        selected_piece = nullptr;
-        _board.clearHighlightMoves(selected_piece);
+        if (selected_piece && *selected_piece) {
+            _board.clearHighlightMoves(selected_piece->get());
+            selected_piece = nullptr;
+        }
     }
 }
 

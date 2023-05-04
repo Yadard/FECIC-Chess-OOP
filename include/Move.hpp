@@ -9,9 +9,9 @@ class Move {
     using BoardPos = sf::Vector2i;
     Move(Piece *t_piece, BoardPos t_destination, BoardPos t_origin);
 
-    auto getPiece() -> Piece *;
-    auto getMoveDestination() -> BoardPos;
-    auto getMoveOrigin() -> BoardPos;
+    auto getPiece() const -> Piece *;
+    auto getMoveDestination() const -> BoardPos;
+    auto getMoveOrigin() const -> BoardPos;
 
   private:
     Piece *_piece;

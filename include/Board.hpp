@@ -39,13 +39,14 @@ class Board : sf::RectangleShape {
     auto getTileFromMousePostion(sf::Vector2i mouse_position) -> Tile * {
         mouse_position.x -= this->getPosition().x;
         mouse_position.y -= this->getPosition().y;
+
+        if (mouse_position.y < 0 || mouse_position.y > this->_size.y || mouse_position.x < 0 || mouse_position.x > this->_size.x)
+            return nullptr;
         return &tiles[mouse_position.y / _tile_size.y][mouse_position.x / _tile_size.x];
     }
 
-    auto executeMove(Move &move) -> std::unique_ptr<Piece> {
-        std::unique_ptr<Piece> piece = nullptr;
-        if (tiles[move.getMoveDestination().y][move.getMoveDestination().x].piece)
-            piece = std::move(tiles[move.getMoveDestination().y][move.getMoveDestination().x].piece);
+    auto executeMove(Move &move) -> std::unique_ptr<Piece> & {
+        std::unique_ptr<Piece> &piece = tiles[move.getMoveDestination().y][move.getMoveDestination().x].piece;
         move.getPiece()->position = move.getMoveDestination();
         tiles[move.getMoveDestination().y][move.getMoveDestination().x].piece.swap(tiles[move.getMoveOrigin().y][move.getMoveOrigin().x].piece);
         return piece;
@@ -76,15 +77,10 @@ class Board : sf::RectangleShape {
         return tile.piece.get();
     }
 
-    auto clearHighlightMoves(Piece *piece) -> void {
-        for (auto row = tiles.begin(); row != tiles.end(); row++) {
-            for (auto col = row->begin(); col != row->end(); col++) {
-                Tile *tile = &(*col);
-                if (tile->getFillColor() != tile->original_color)
-                    tile->setFillColor(tile->original_color);
-                if (tile->move.get())
-                    tile->move.release();
-            }
+    auto clearHighlightMoves(Piece *moved_piece) -> void {
+        for (auto &coord : moved_piece->getOldMoves()) {
+            Tile *tile = getTile(coord.getMoveDestination().y, coord.getMoveDestination().x);
+            tile->setFillColor(tile->original_color);
         }
     }
 

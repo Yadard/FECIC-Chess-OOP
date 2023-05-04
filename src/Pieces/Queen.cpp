@@ -1,6 +1,6 @@
 #include "Pieces/Queen.hpp"
 
-Queen::Queen(Team t_team, Move::BoardPos t_position, sf::Sprite &t_sprite) : Piece(t_team, t_position, t_sprite) {}
+Queen::Queen(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite) : Piece(t_team, t_position, t_sprite) {}
 
 auto Queen::getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & {
     this->_move_list_data.clear();

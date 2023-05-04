@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <functional>
+#include <unordered_map>
 
 #define EVENT_AMOUNT_SFML 23
 
@@ -14,6 +15,8 @@ class Chess {
   public:
     Chess();
     auto addPiece(std::unique_ptr<Piece> piece) -> void;
+    auto registerSprite(std::string key, sf::Sprite &sprite) -> void;
+    auto getSprite(std::string key) -> const sf::Sprite &;
     auto run() -> void;
     auto win(Team winner) -> void;
 
@@ -33,11 +36,13 @@ class Chess {
         __Killzones(KillZone __a, KillZone __b) : starter_team(__a), last_team(__b) {}
     } _killzones;
     bool _drawn = false;
-    Piece *selected_piece = nullptr;
+    std::unique_ptr<Piece> *selected_piece = nullptr;
     Team current_turn = Team::STARTER;
     struct {
         size_t starter = 0, last = 0;
     } pieces_amount;
+
+    std::unordered_map<std::string, sf::Sprite> sprites;
 };
 
 #endif // CHESS_HPP

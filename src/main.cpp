@@ -20,64 +20,71 @@ void setSpriteSize(sf::Sprite &sprite, sf::Vector2f size) {
 }
 
 void setup_tradicional_chess(Chess &chess, sf::Texture *black, sf::Texture *white) {
-    std::string base("./assets/sprites/");
+    std::string base("./../assets/sprites/");
     const char *names[] = {"pawn", "bishop", "knight", "king", "queen", "rook"};
 
-    bool sucess = true;
+    bool success = true;
     for (size_t i = 0; i < 6; i++) {
         std::string w(base + "white/" + names[i] + ".png");
         std::string b(base + "black/" + names[i] + ".png");
         if (!white[i].loadFromFile(w.c_str()) || !black[i].loadFromFile(b.c_str())) {
-            sucess = false;
+            success = false;
         }
     }
 
     sf::Sprite t_sprite;
-    for (size_t i = 0; i < 8; i++) {
-        t_sprite.setTexture(white[0]);
+    for (size_t i = 0; i < 6; i++) {
+        t_sprite.setTexture(white[i]);
         setSpriteSize(t_sprite, {80.0, 80.0});
-        chess.addPiece(std::make_unique<Pawn>(Team::STARTER, Move::BoardPos(i, 1), t_sprite));
-        t_sprite.setTexture(black[0]);
+        std::string key = "Starter_";
+        key += names[i];
+        chess.registerSprite(key, t_sprite);
+        key = "Latter_";
+        key += names[i];
+        t_sprite.setTexture(black[i]);
         setSpriteSize(t_sprite, {80.0, 80.0});
-        chess.addPiece(std::make_unique<Pawn>(Team::LATTER, Move::BoardPos(i, 6), t_sprite));
+        chess.registerSprite(key, t_sprite);
     }
 
     for (size_t i = 0; i < 8; i++) {
-        if (i == 0 || i == 7) {
-            t_sprite.setTexture(white[5]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Rook>(Team::STARTER, Move::BoardPos(i, 0), t_sprite));
-            t_sprite.setTexture(black[5]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Rook>(Team::LATTER, Move::BoardPos(i, 7), t_sprite));
-        } else if (i == 1 || i == 6) {
-            t_sprite.setTexture(white[2]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Knight>(Team::STARTER, Move::BoardPos(i, 0), t_sprite));
-            t_sprite.setTexture(black[2]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Knight>(Team::LATTER, Move::BoardPos(i, 7), t_sprite));
-        } else if (i == 2 || i == 5) {
-            t_sprite.setTexture(white[1]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Bishop>(Team::STARTER, Move::BoardPos(i, 0), t_sprite));
-            t_sprite.setTexture(black[1]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Bishop>(Team::LATTER, Move::BoardPos(i, 7), t_sprite));
-        } else if (i == 3) {
-            t_sprite.setTexture(white[4]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Queen>(Team::STARTER, Move::BoardPos(i, 0), t_sprite));
-            t_sprite.setTexture(black[4]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<Queen>(Team::LATTER, Move::BoardPos(i, 7), t_sprite));
-        } else {
-            t_sprite.setTexture(white[3]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<King>(Team::STARTER, Move::BoardPos(i, 0), t_sprite, std::bind(&Chess::win, &chess, Team::LATTER)));
-            t_sprite.setTexture(black[3]);
-            setSpriteSize(t_sprite, {80.0, 80.0});
-            chess.addPiece(std::make_unique<King>(Team::LATTER, Move::BoardPos(i, 7), t_sprite, std::bind(&Chess::win, &chess, Team::STARTER)));
+        chess.addPiece(std::make_unique<Pawn>(Team::STARTER, Move::BoardPos(i, 1), chess.getSprite("Starter_pawn")));
+        chess.addPiece(std::make_unique<Pawn>(Team::LATTER, Move::BoardPos(i, 6), chess.getSprite("Latter_pawn")));
+    }
+
+    for (size_t i = 0; i < 8; i++) {
+        switch (i) {
+        case 7:
+        case 0:
+            chess.addPiece(std::make_unique<Rook>(Team::STARTER, Move::BoardPos(i, 0), chess.getSprite("Starter_rook")));
+            chess.addPiece(std::make_unique<Rook>(Team::LATTER, Move::BoardPos(i, 7), chess.getSprite("Latter_rook")));
+            break;
+
+        case 1:
+        case 6:
+            chess.addPiece(std::make_unique<Knight>(Team::STARTER, Move::BoardPos(i, 0), chess.getSprite("Starter_knight")));
+            chess.addPiece(std::make_unique<Knight>(Team::LATTER, Move::BoardPos(i, 7), chess.getSprite("Latter_knight")));
+            break;
+
+        case 2:
+        case 5:
+            chess.addPiece(std::make_unique<Bishop>(Team::STARTER, Move::BoardPos(i, 0), chess.getSprite("Starter_bishop")));
+            chess.addPiece(std::make_unique<Bishop>(Team::LATTER, Move::BoardPos(i, 7), chess.getSprite("Latter_bishop")));
+            break;
+
+        case 3:
+            chess.addPiece(std::make_unique<Queen>(Team::STARTER, Move::BoardPos(i, 0), chess.getSprite("Starter_queen")));
+            chess.addPiece(std::make_unique<Queen>(Team::LATTER, Move::BoardPos(i, 7), chess.getSprite("Latter_queen")));
+            break;
+
+        case 4:
+            chess.addPiece(
+                std::make_unique<King>(Team::STARTER, Move::BoardPos(i, 0), chess.getSprite("Starter_king"), std::bind(&Chess::win, &chess, Team::LATTER)));
+            chess.addPiece(
+                std::make_unique<King>(Team::LATTER, Move::BoardPos(i, 7), chess.getSprite("Latter_king"), std::bind(&Chess::win, &chess, Team::STARTER)));
+            break;
+
+        default:
+            break;
         }
     }
 }

@@ -5,7 +5,7 @@
 
 class Knight : public Piece {
   public:
-    Knight(Team t_team, Move::BoardPos t_position, sf::Sprite &t_sprite);
+    Knight(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite);
     ~Knight() override = default;
 
     auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;

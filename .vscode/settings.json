@@ -84,4 +84,7 @@
         "fuchsia-trailing-return",
         "fuchsia-default-arguments-calls"
     ],
+    "cSpell.words": [
+        "Killzones"
+    ],
 }

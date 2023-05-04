@@ -1,10 +1,11 @@
 #include "Pieces/Piece.hpp"
 
-Piece::Piece(Team t_team, Move::BoardPos t_position, sf::Sprite &t_sprite)
+Piece::Piece(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite)
     : _team(t_team), position(t_position), _sprite(t_sprite), onDie(nullptr), onMove(nullptr) {
     this->_move_list_data.reserve(64);
 }
 
+auto Piece::getOldMoves() -> const MoveList & { return this->_move_list_data; }
 auto Piece::getTeam() -> Team { return _team; }
 auto Piece::getSprite() -> sf::Sprite & { return _sprite; }
 

@@ -1,6 +1,6 @@
 #include "Pieces/King.hpp"
 
-King::King(Team t_team, Move::BoardPos t_position, sf::Sprite &t_sprite, std::function<void()> t_ondie) : Piece(t_team, t_position, t_sprite) {
+King::King(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite, std::function<void()> t_ondie) : Piece(t_team, t_position, t_sprite) {
     this->onDie = t_ondie;
 }
 

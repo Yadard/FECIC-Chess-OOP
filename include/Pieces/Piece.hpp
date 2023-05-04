@@ -4,6 +4,9 @@
 #include "./../Move.hpp"
 #include <SFML/Graphics.hpp>
 #include <functional>
+#include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #ifndef MAX_MOVES_AMOUNT
@@ -21,16 +24,18 @@ enum class Team {
 
 class Piece {
   public:
-    Piece(Team t_team, Move::BoardPos t_position, sf::Sprite &t_sprite);
+    Piece(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite);
     virtual ~Piece() {}
     virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & { return _move_list_data; }
 
+    auto getOldMoves() -> const MoveList &;
     auto getTeam() -> Team;
     auto getSprite() -> sf::Sprite &;
 
     Move::BoardPos position;
     std::function<void()> onDie;
     std::function<void(Move::BoardPos)> onMove;
+    std::function<void(std::unique_ptr<Piece> &, std::unordered_map<std::string, sf::Sprite> &)> onReachEnd;
 
   protected:
     auto goFowards(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;

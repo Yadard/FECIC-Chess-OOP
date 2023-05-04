@@ -14,7 +14,7 @@ struct Entry {
             sprite = t_move.getPiece()->getSprite();
 
         if (!loaded) {
-            if (!font.loadFromFile("./assets/arial.ttf")) {
+            if (!font.loadFromFile("./../assets/arial.ttf")) {
                 std::cout << "AAA" << std::endl;
             }
             loaded = true;
