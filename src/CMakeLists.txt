@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
-
-project(Chess-FECIC)
+project(Chess-FECIC LANGUAGES CXX)
 
 include(FetchContent)
 set(SFML_VERSION "2.5.1")
@@ -18,24 +17,28 @@ if(NOT sfml_POPULATED)
 endif()
 FetchContent_MakeAvailable(sfml)
 
-message("A: ${sfml_SOURCE_DIR}")
+message("A: ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp")
 include_directories(${sfml_SOURCE_DIR}/include)
 find_package(OpenCV REQUIRED)
 
 add_executable(
     Chess-FECIC
-    main.cpp
-    Chess.cpp
-    History.cpp
-    KillZone.cpp
-    Move.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Pawn.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Piece.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Bishop.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Rook.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Knight.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/Queen.cpp
-    ${PROJECT_SOURCE_DIR}/Pieces/King.cpp
+    ${PROJECT_SOURCE_DIR}/main.cpp
+    # ${PROJECT_SOURCE_DIR}/Game.cpp
+    # ${PROJECT_SOURCE_DIR}/AssetManager.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/MainMenu.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Button.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Chess.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/KillZone.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Pawn.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Bishop.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Rook.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Knight.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Queen.cpp
+    # ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/King.cpp
 )
 
 target_compile_features(Chess-FECIC PRIVATE cxx_std_17)
