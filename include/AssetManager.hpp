@@ -47,13 +47,13 @@ class AssetManager {
       public:
         ~PieceFactory();
 
-        auto createPiece(std::string name) -> Piece *;
+        auto createPiece(std::string name, Team t_team, Move::BoardPos t_position) -> Piece *;
         auto loadPiece(std::string name) -> void;
 
       private:
-        auto loadImplementation() -> void;
+        auto loadImplementation(std::string name) -> void;
         auto getFunc(DLLHandle_t handle) -> PieceMaker;
-        auto openDLL(std::filesystem::path path, DLLHandle_t handle) -> void;
+        auto openDLL(std::filesystem::path path, DLLHandle_t handle) -> DLLHandle_t;
         auto closeDLL(DLLHandle_t handle) -> void;
 
         struct Entry {

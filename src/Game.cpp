@@ -128,4 +128,11 @@ auto Game::loadPresets() -> void {
     }
 }
 
-auto Game::loadPieces() -> void { AssetManager::GetInstance().piece_factory.loadPiece("Pawn"); }
+auto Game::loadPieces() -> void {
+    AssetManager::GetInstance().piece_factory.loadPiece("Pawn");
+    AssetManager::GetInstance().piece_factory.loadPiece("Bishop");
+    AssetManager::GetInstance().piece_factory.loadPiece("Rook");
+    AssetManager::GetInstance().piece_factory.loadPiece("Knight");
+    AssetManager::GetInstance().piece_factory.loadPiece("Queen");
+    AssetManager::GetInstance().piece_factory.loadPiece("King");
+}

@@ -17,12 +17,12 @@ auto Logo::draw(sf::RenderWindow &render) -> void {
 }
 
 auto Logo::updatePosition() -> void {
-    m_text.setOrigin({m_text.getLocalBounds().width / 2.0, m_text.getLocalBounds().height / 2.0});
-    sf::Vector2f label_pos(m_position.x - m_img.getGlobalBounds().width / 2.0, m_position.y + 50);
+    m_text.setOrigin({m_text.getLocalBounds().width / 2.0f, m_text.getLocalBounds().height / 2.0f});
+    sf::Vector2f label_pos(m_position.x - m_img.getGlobalBounds().width / 2.0f, m_position.y + 50.0f);
     m_text.setPosition(label_pos);
-    sf::Vector2f center_img(m_img.getLocalBounds().width / 4.0, m_img.getLocalBounds().height / 4.0);
+    sf::Vector2f center_img(m_img.getLocalBounds().width / 4.0f, m_img.getLocalBounds().height / 4.0f);
     m_img.setOrigin(center_img);
-    m_img.setPosition({label_pos.x + center_img.x + m_text.getLocalBounds().width / 2.0, m_position.y});
+    m_img.setPosition({label_pos.x + center_img.x + m_text.getLocalBounds().width / 2.0f, m_position.y});
 }
 
 auto Logo::setPosition(sf::Vector2f pos) -> void {

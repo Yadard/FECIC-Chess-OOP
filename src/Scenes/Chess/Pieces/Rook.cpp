@@ -1,6 +1,6 @@
 #include "Scenes/Chess/Pieces/Rook.hpp"
 
-Rook::Rook(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite) : Piece(t_team, t_position, t_sprite) {}
+Rook::Rook(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : Piece(t_team, t_position, t_texture) {}
 
 auto Rook::getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & {
     this->_move_list_data.clear();

@@ -5,10 +5,14 @@
 
 class King : public Piece {
   public:
-    King(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite, std::function<void()> t_ondie);
+    King(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
     ~King() override = default;
 
     auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;
 };
+
+extern "C" PIECE_API_EXPORT Piece *createPiece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) {
+    return new King(t_team, t_position, t_texture);
+}
 
 #endif // KING_HPP

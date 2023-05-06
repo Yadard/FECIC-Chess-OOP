@@ -36,15 +36,38 @@ AssetManager::PieceFactory::~PieceFactory() {
 
 #include <iostream>
 
-auto AssetManager::PieceFactory::createPiece(std::string name) -> Piece * { return m_pieces.at(name).piece_maker(); }
+auto AssetManager::PieceFactory::createPiece(std::string name, Team t_team, Move::BoardPos t_position) -> Piece * {
+    return m_pieces.at(name).piece_maker(t_team, t_position, AssetManager::GetInstance().getTexture(name));
+}
 auto AssetManager::PieceFactory::loadPiece(std::string name) -> void {
+    std::string file(name + ".png");
+    std::filesystem::path black_texture("./../assets/sprites/black");
+    black_texture.append(file);
+    std::filesystem::path white_texture("./../assets/sprites/white");
+    white_texture.append(file);
+
+    sf::Texture texture;
+    if (!texture.loadFromFile(black_texture.string().c_str())) {
+        std::cerr << "Failed to load black sprite for " << name << std::endl;
+    }
+    AssetManager::GetInstance().registerTexture(std::string(name + "_Black"), texture);
+
+    if (!texture.loadFromFile(black_texture.string().c_str())) {
+        std::cerr << "Failed to load white sprite for " << name << std::endl;
+    }
+    AssetManager::GetInstance().registerTexture(std::string(name + "_White"), texture);
+
+    loadImplementation(name);
+}
+
+auto AssetManager::PieceFactory::loadImplementation(std::string name) -> void {
     Entry entry;
 
     std::string filename("lib" + name);
     std::filesystem::path path(folder);
 
     path.append(filename);
-    openDLL(path, entry.handle);
+    entry.handle = openDLL(path, entry.handle);
 
     entry.piece_maker = getFunc(entry.handle);
 
@@ -53,6 +76,7 @@ auto AssetManager::PieceFactory::loadPiece(std::string name) -> void {
     else
         std::cerr << "Failed to load " << name << std::endl;
 }
+
 auto AssetManager::PieceFactory::closeDLL(DLLHandle_t handle) -> void {
 #ifdef _WIN32
     FreeLibrary(handle);
@@ -73,22 +97,25 @@ auto AssetManager::PieceFactory::getFunc(DLLHandle_t handle) -> PieceMaker {
         closeDLL(handle);
         exit(EXIT_FAILURE);
     }
+
+    return func;
 }
-auto AssetManager::PieceFactory::openDLL(std::filesystem::path path, DLLHandle_t handle) -> void {
+auto AssetManager::PieceFactory::openDLL(std::filesystem::path path, DLLHandle_t handle) -> DLLHandle_t {
     std::string file = path.string();
 #ifdef _WIN32
     file += ".dll";
-    HMODULE library_handle = LoadLibrary(file.c_str());
-    if (library_handle == NULL) {
+    handle = LoadLibrary(file.c_str());
+    if (handle == NULL) {
         std::cerr << "Windows: Error loading dynamic library" << std::endl;
         exit(EXIT_FAILURE);
     }
 #else
     file += ".so";
-    void *library_handle = dlopen(file.c_str(), RTLD_LAZY);
-    if (library_handle == NULL) {
+    handle = dlopen(file.c_str(), RTLD_LAZY);
+    if (handle == NULL) {
         std::cerr << "Unix: Error loading dynamic library: " << dlerror() << std::endl;
         exit(EXIT_FAILURE);
     }
 #endif
+    return handle;
 }

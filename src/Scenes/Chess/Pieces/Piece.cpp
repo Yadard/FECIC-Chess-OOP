@@ -1,8 +1,8 @@
 #include "Scenes/Chess/Pieces/Piece.hpp"
 
-Piece::Piece(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite)
-    : _team(t_team), position(t_position), _sprite(t_sprite), onDie(nullptr), onMove(nullptr) {
+Piece::Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : _team(t_team), position(t_position), onDie(nullptr), onMove(nullptr) {
     this->_move_list_data.reserve(64);
+    _sprite.setTexture(t_texture, true);
 }
 
 auto Piece::getOldMoves() -> const MoveList & { return this->_move_list_data; }

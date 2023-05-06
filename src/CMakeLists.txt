@@ -4,6 +4,36 @@ project(Chess-FECIC LANGUAGES CXX)
 include(FetchContent)
 set(SFML_VERSION "2.5.1")
 
+function(CreatePiece arg)
+    message("config for ${arg}")
+
+    add_library(
+        ${arg} 
+        SHARED 
+        ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/${arg}.cpp
+        ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
+        ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
+        ${PROJECT_SOURCE_DIR}/AssetManager.cpp
+    )
+
+    target_link_libraries(
+        ${arg} 
+        PRIVATE 
+            sfml-audio
+            sfml-graphics
+            sfml-system
+            sfml-window
+    )
+
+    set_target_properties( 
+        ${arg}
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
+    )
+endfunction()
+
 FetchContent_Declare(
     sfml
     GIT_REPOSITORY "https://github.com/SFML/SFML.git"
@@ -21,6 +51,8 @@ message("A: ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp")
 include_directories(${sfml_SOURCE_DIR}/include)
 find_package(OpenCV REQUIRED)
 
+
+
 add_executable(
     Chess-FECIC
     ${PROJECT_SOURCE_DIR}/main.cpp
@@ -36,14 +68,16 @@ add_executable(
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/KillZone.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Board.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Pawn.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Bishop.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Rook.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Knight.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Queen.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/King.cpp
 )
+
+
+CreatePiece(Pawn)
+CreatePiece(Bishop)
+CreatePiece(Rook)
+CreatePiece(Knight)
+CreatePiece(Queen)
+CreatePiece(King)
 
 target_compile_features(Chess-FECIC PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
@@ -55,18 +89,19 @@ set_target_properties(
     Chess-FECIC
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+target_link_libraries(
+    Chess-FECIC
+        PRIVATE 
+            sfml-audio
+            sfml-graphics
+            sfml-system
+            sfml-window
+    )
 
-target_link_libraries(Chess-FECIC
-    PRIVATE
-        sfml-audio
-        sfml-graphics
-        sfml-system
-        sfml-window
-)
 
 
 install(TARGETS Chess-FECIC DESTINATION ${CHESS_FECIC_INSTALL_BIN_DIR})

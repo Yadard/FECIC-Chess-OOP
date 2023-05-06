@@ -19,14 +19,21 @@ enum class Team {
 
 #define FACTORY_NAME_PIECE_MAKER "createPiece"
 
+#ifdef _WIN32
+#define PIECE_API_EXPORT __declspec(dllexport)
+#define PIECE_API_IMPORT __declspec(dllimport)
+#else
+#define SFML_API_EXPORT __attribute__((__visibility__("default")))
+#define SFML_API_IMPORT __attribute__((__visibility__("default")))
+#endif
+
 using MoveList = std::vector<Move>;
 
-using PieceMaker = Piece *(*)();
+using PieceMaker = Piece *(*)(Team, Move::BoardPos, const sf::Texture &t_texture);
 
 class Piece {
   public:
-    Piece();
-    Piece(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite);
+    Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
     virtual ~Piece() {}
     virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & { return _move_list_data; }
 
