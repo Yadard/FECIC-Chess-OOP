@@ -91,9 +91,9 @@ auto Preset::parsePiece(ParsingInfo parsing_info) -> void {
             if (isClosingToken(parsing_info.line_raw[i])) {
                 team_raw = parsing_info.line_raw.substr(start + offset, 5);
                 if (team_raw.ends_with("WHITE")) {
-                    piece.team = Team::STARTER;
+                    piece.team = Team::WHITE;
                 } else if (team_raw.ends_with("BLACK")) {
-                    piece.team = Team::LATTER;
+                    piece.team = Team::BLACK;
                 } else {
                     prefix += "\"";
                     prefix += team_raw;

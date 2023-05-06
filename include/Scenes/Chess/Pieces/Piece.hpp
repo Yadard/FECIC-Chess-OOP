@@ -9,21 +9,23 @@
 #include <unordered_map>
 #include <vector>
 
-#ifndef MAX_MOVES_AMOUNT
-#define MAX_MOVES_AMOUNT 64 // max is a 8x8 square full of moves
-#endif
-
 class Chess;
+class Piece;
+
+enum class Team {
+    WHITE, // Start the game, tradicionally the white pieces
+    BLACK  // Goes last in the game, tradicionally the black pieces
+};
+
+#define FACTORY_NAME_PIECE_MAKER "createPiece"
 
 using MoveList = std::vector<Move>;
 
-enum class Team {
-    STARTER, // Start the game, tradicionally the white pieces
-    LATTER   // Goes last in the game, tradicionally the black pieces
-};
+using PieceMaker = Piece *(*)();
 
 class Piece {
   public:
+    Piece();
     Piece(Team t_team, Move::BoardPos t_position, const sf::Sprite &t_sprite);
     virtual ~Piece() {}
     virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & { return _move_list_data; }

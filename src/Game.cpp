@@ -127,4 +127,5 @@ auto Game::loadPresets() -> void {
         AssetManager::GetInstance().registerPreset(entry.path().stem().string(), preset);
     }
 }
-auto Game::loadPieces() -> void {}
+
+auto Game::loadPieces() -> void { AssetManager::GetInstance().piece_factory.loadPiece("Pawn"); }

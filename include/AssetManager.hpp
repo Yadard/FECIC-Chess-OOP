@@ -9,6 +9,14 @@
 #include <string>
 #include <unordered_map>
 
+#ifdef _WIN32 // Windows
+#include <Windows.h>
+using DLLHandle_t = HMODULE;
+#else // Unix-like systems (Linux, macOS)
+using DLLHandle_t = void *;
+#include <dlfcn.h>
+#endif
+
 class AssetManager {
 
   public:
@@ -35,9 +43,27 @@ class AssetManager {
     auto presetCBegin() -> std::unordered_map<std::string, Preset>::const_iterator;
     auto presetCEnd() -> std::unordered_map<std::string, Preset>::const_iterator;
 
-    auto registerPiece(std::string key, Piece *piece) -> void;
-    auto hasPiece(std::string key) -> bool;
-    auto getPiece(std::string key) -> const Piece &;
+    class PieceFactory {
+      public:
+        ~PieceFactory();
+
+        auto createPiece(std::string name) -> Piece *;
+        auto loadPiece(std::string name) -> void;
+
+      private:
+        auto loadImplementation() -> void;
+        auto getFunc(DLLHandle_t handle) -> PieceMaker;
+        auto openDLL(std::filesystem::path path, DLLHandle_t handle) -> void;
+        auto closeDLL(DLLHandle_t handle) -> void;
+
+        struct Entry {
+            DLLHandle_t handle = nullptr;
+            PieceMaker piece_maker = nullptr;
+        };
+
+        std::filesystem::path folder = "./../pieces";
+        std::unordered_map<std::string, Entry> m_pieces;
+    } piece_factory;
 
   private:
     AssetManager() = default;
@@ -48,7 +74,6 @@ class AssetManager {
     std::unordered_map<std::string, sf::Font> m_fonts;
     std::unordered_map<std::string, sf::SoundBuffer> m_sfx;
     std::unordered_map<std::string, Preset> m_presets;
-    std::unordered_map<std::string, std::unique_ptr<Piece>> m_pieces;
 };
 
 #endif // ASSETMANAGER_HPP

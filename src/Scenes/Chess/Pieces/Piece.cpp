@@ -10,22 +10,22 @@ auto Piece::getTeam() -> Team { return _team; }
 auto Piece::getSprite() -> sf::Sprite & { return _sprite; }
 
 auto Piece::goFowards(Move::BoardPos position, size_t amount) -> Move::BoardPos {
-    _team == Team::LATTER ? position.y -= amount : position.y += amount;
+    _team == Team::BLACK ? position.y -= amount : position.y += amount;
     return position;
 }
 
 auto Piece::goBackwards(Move::BoardPos position, size_t amount) -> Move::BoardPos {
-    _team == Team::LATTER ? position.y += amount : position.y -= amount;
+    _team == Team::BLACK ? position.y += amount : position.y -= amount;
     return position;
 }
 
 auto Piece::goLeft(Move::BoardPos position, size_t amount) -> Move::BoardPos {
-    _team == Team::LATTER ? position.x -= amount : position.x += amount;
+    _team == Team::BLACK ? position.x -= amount : position.x += amount;
     return position;
 }
 
 auto Piece::goRight(Move::BoardPos position, size_t amount) -> Move::BoardPos {
-    _team == Team::LATTER ? position.x += amount : position.x -= amount;
+    _team == Team::BLACK ? position.x += amount : position.x -= amount;
     return position;
 }
 

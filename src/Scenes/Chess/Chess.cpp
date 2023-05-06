@@ -1,7 +1,7 @@
 #include "Scenes/Chess/Chess.hpp"
 
 Chess::Chess()
-    : _render(sf::VideoMode(1028, 960), "Chess FECIC"), _board({0, 100}, {850, 760}), _history({849, 0}, {188, 960}),
+    : _render(sf::VideoMode(1028, 960), "Chess FECIC"), _board({0, 100}, {850, 760}, {8, 8}), _history({849, 0}, {188, 960}),
       _killzones({{0, 0}, {850, 100}}, {{0, 860}, {850, 100}}) {
 
     this->_event_handlers[sf::Event::EventType::MouseButtonPressed] = std::bind(&Chess::onMouseButtonPress, this, std::placeholders::_1);
@@ -45,7 +45,7 @@ auto Chess::run() -> void {
 auto Chess::win(Team winner) -> void { _render.close(); }
 
 auto Chess::addPiece(std::unique_ptr<Piece> piece) -> void {
-    if (piece->getTeam() == Team::STARTER) {
+    if (piece->getTeam() == Team::WHITE) {
         piece->getSprite().setColor(sf::Color::White);
         ++pieces_amount.starter;
     } else {
@@ -57,13 +57,13 @@ auto Chess::addPiece(std::unique_ptr<Piece> piece) -> void {
 
 auto Chess::onMouseButtonPress(sf::Event &event) -> void {
     if (event.mouseButton.button == sf::Mouse::Button::Left) {
-        Tile *tile = _board.getTileFromMousePostion({event.mouseButton.x, event.mouseButton.y});
+        Tile *tile = _board.getTileFromMousePostion({(float)event.mouseButton.x, (float)event.mouseButton.y});
         if (!tile)
             return;
         if (selected_piece && *selected_piece) {
             if (tile->move.get()) {
                 bool reached_end = false;
-                if ((*selected_piece)->getTeam() == Team::STARTER) {
+                if ((*selected_piece)->getTeam() == Team::WHITE) {
                     reached_end = tile->move->getMoveDestination().y == 7;
                 } else {
                     reached_end = tile->move->getMoveDestination().y == 0;
@@ -78,7 +78,7 @@ auto Chess::onMouseButtonPress(sf::Event &event) -> void {
                 if (reached_end && dest->onReachEnd)
                     dest->onReachEnd(dest, this->sprites);
                 if (selected_piece && *selected_piece) {
-                    if (current_turn == Team::STARTER) {
+                    if (current_turn == Team::WHITE) {
                         _killzones.last_team.addPiece((*selected_piece)->getSprite());
                     } else {
                         _killzones.starter_team.addPiece((*selected_piece)->getSprite());

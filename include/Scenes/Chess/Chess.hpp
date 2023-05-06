@@ -28,7 +28,7 @@ class Chess {
     std::array<std::function<void(sf::Event &)>, EVENT_AMOUNT_SFML> _event_handlers{nullptr};
 
     sf::RenderWindow _render;
-    Board<8, 8> _board;
+    Board _board;
     History _history;
     struct __Killzones {
         KillZone starter_team, last_team;
@@ -37,7 +37,7 @@ class Chess {
     } _killzones;
     bool _drawn = false;
     std::unique_ptr<Piece> *selected_piece = nullptr;
-    Team current_turn = Team::STARTER;
+    Team current_turn = Team::WHITE;
     struct {
         size_t starter = 0, last = 0;
     } pieces_amount;

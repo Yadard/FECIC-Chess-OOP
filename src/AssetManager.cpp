@@ -26,6 +26,69 @@ auto AssetManager::getPreset(std::string key) -> const Preset & { return m_prese
 auto AssetManager::presetCBegin() -> std::unordered_map<std::string, Preset>::const_iterator { return m_presets.cbegin(); }
 auto AssetManager::presetCEnd() -> std::unordered_map<std::string, Preset>::const_iterator { return m_presets.cend(); }
 
-auto AssetManager::registerPiece(std::string key, Piece *piece) -> void { m_pieces[key].reset(piece); }
-auto AssetManager::hasPiece(std::string key) -> bool { return m_pieces.contains(key); }
-auto AssetManager::getPiece(std::string key) -> const Piece & { return *m_pieces.at(key); }
+AssetManager::PieceFactory::~PieceFactory() {
+    for (auto &entry : m_pieces) {
+        if (entry.second.handle != NULL) {
+            closeDLL(entry.second.handle);
+        }
+    }
+}
+
+#include <iostream>
+
+auto AssetManager::PieceFactory::createPiece(std::string name) -> Piece * { return m_pieces.at(name).piece_maker(); }
+auto AssetManager::PieceFactory::loadPiece(std::string name) -> void {
+    Entry entry;
+
+    std::string filename("lib" + name);
+    std::filesystem::path path(folder);
+
+    path.append(filename);
+    openDLL(path, entry.handle);
+
+    entry.piece_maker = getFunc(entry.handle);
+
+    if (entry.piece_maker)
+        m_pieces[name] = entry;
+    else
+        std::cerr << "Failed to load " << name << std::endl;
+}
+auto AssetManager::PieceFactory::closeDLL(DLLHandle_t handle) -> void {
+#ifdef _WIN32
+    FreeLibrary(handle);
+#else
+    dlclose(handle);
+#endif
+}
+
+auto AssetManager::PieceFactory::getFunc(DLLHandle_t handle) -> PieceMaker {
+    PieceMaker func;
+#ifdef _WIN32
+    func = reinterpret_cast<PieceMaker>(GetProcAddress(handle, FACTORY_NAME_PIECE_MAKER));
+#else
+    func = reinterpret_cast<PieceMaker>(dlsym(handle, FACTORY_NAME_PIECE_MAKER));
+#endif
+    if (func == NULL) {
+        std::cerr << "Error getting function pointer" << std::endl;
+        closeDLL(handle);
+        exit(EXIT_FAILURE);
+    }
+}
+auto AssetManager::PieceFactory::openDLL(std::filesystem::path path, DLLHandle_t handle) -> void {
+    std::string file = path.string();
+#ifdef _WIN32
+    file += ".dll";
+    HMODULE library_handle = LoadLibrary(file.c_str());
+    if (library_handle == NULL) {
+        std::cerr << "Windows: Error loading dynamic library" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+#else
+    file += ".so";
+    void *library_handle = dlopen(file.c_str(), RTLD_LAZY);
+    if (library_handle == NULL) {
+        std::cerr << "Unix: Error loading dynamic library: " << dlerror() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+#endif
+}

@@ -28,6 +28,8 @@ class PlayPopup {
     struct PresetEntry {
         const Preset &preset;
         sf::Text btn;
+
+        sf::RectangleShape background;
         sf::RectangleShape line;
 
         PresetEntry(const Preset &t_preset, std::string str) : preset(t_preset) {
@@ -35,14 +37,16 @@ class PlayPopup {
             btn.setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
             btn.setFillColor(sf::Color::Black);
             btn.setCharacterSize(20);
-
         }
 
         auto draw(sf::RenderWindow &render) -> void {
+            render.draw(background);
             render.draw(btn);
             render.draw(line);
+
+            background.setFillColor(sf::Color::Transparent);
         }
-        auto clicked(sf::FloatRect mouse) -> bool { return btn.getGlobalBounds().intersects(mouse); }
+        auto clicked(sf::FloatRect mouse) -> bool { return background.getGlobalBounds().intersects(mouse); }
     };
 
     PlayPopup(sf::RenderWindow &render);
@@ -63,8 +67,9 @@ class PlayPopup {
     sf::RectangleShape m_background;
     sf::RectangleShape m_presets_bg;
     std::vector<PresetEntry> m_presets;
+    PresetEntry *m_selected_preset = nullptr;
     // TextInput m_row, m_col;
-    // Board m_preview;
+    Board m_preview;
 
     Button m_play_btn, m_close_btn;
 };

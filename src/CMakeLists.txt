@@ -35,6 +35,7 @@ add_executable(
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/KillZone.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
+    ${PROJECT_SOURCE_DIR}/Scenes/Chess/Board.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Pawn.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Bishop.cpp

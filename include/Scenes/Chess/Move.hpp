@@ -6,7 +6,7 @@ class Piece;
 
 class Move {
   public:
-    using BoardPos = sf::Vector2i;
+    using BoardPos = sf::Vector2u;
     Move(Piece *t_piece, BoardPos t_destination, BoardPos t_origin);
 
     auto getPiece() const -> Piece *;
