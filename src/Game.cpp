@@ -9,15 +9,11 @@ Game::Game(sf::VideoMode t_render, const char *title) : m_render(t_render, title
 }
 
 auto Game::loadAssets() -> void {
-    sf::Vector2f viewport(m_render.getSize().x, m_render.getSize().y);
-    AssetManager::GetInstance().registerTexture("MainMenu.BG", generate_pattern(viewport, {12, 12}));
-    sf::Texture texture;
-    texture.loadFromFile("./../assets/Paint_bg.png");
-    AssetManager::GetInstance().registerTexture("MainMenu.ButtonBG", texture);
-
-    sf::Font font;
-    font.loadFromFile("./../assets/PIXABLER.ttf");
-    AssetManager::GetInstance().registerFont("MainMenu.Button", font);
+    this->loadTextures();
+    this->loadFonts();
+    this->loadSFX();
+    this->loadPresets();
+    this->loadPieces();
 }
 
 auto Game::gameloop() -> void {
@@ -95,3 +91,40 @@ static sf::Texture generate_pattern(sf::Vector2f rect_size, sf::Vector2u amount,
     rt.display();
     return rt.getTexture();
 }
+
+auto Game::loadTextures() -> void {
+    sf::Vector2f viewport(m_render.getSize().x, m_render.getSize().y);
+    AssetManager::GetInstance().registerTexture("MainMenu.BG", generate_pattern(viewport, {8, 8}));
+    sf::Texture texture;
+    texture.loadFromFile("./../assets/Paint_bg.png");
+    AssetManager::GetInstance().registerTexture("MainMenu.ButtonBG", texture);
+    texture.loadFromFile("./../assets/logo.png");
+    AssetManager::GetInstance().registerTexture("MainMenu.Logo", texture);
+    texture.loadFromFile("./../assets/MainMenu_Piece.png");
+    texture.setSmooth(true);
+    AssetManager::GetInstance().registerTexture("MainMenu.Piece", texture);
+}
+auto Game::loadFonts() -> void {
+    sf::Font font;
+    font.loadFromFile("./../assets/PIXABLER.ttf");
+    AssetManager::GetInstance().registerFont("MainMenu.Button", font);
+    font.loadFromFile("./../assets/Valenzka.ttf");
+    AssetManager::GetInstance().registerFont("MainMenu.Logo", font);
+}
+auto Game::loadSFX() -> void {
+    sf::SoundBuffer sfx;
+    sfx.loadFromFile("./../assets/sfx/move.wav");
+    AssetManager::GetInstance().registerSFX("MainMenu.PieceMove", sfx);
+}
+auto Game::loadPresets() -> void {
+    std::filesystem::path path("./../presets");
+    Preset preset;
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (preset.loadFromFile(entry.path()))
+            std::cout << "loaded: " << entry.path().stem() << std::endl;
+        else
+            std::cout << "failed: " << entry.path().stem() << std::endl;
+        AssetManager::GetInstance().registerPreset(entry.path().stem().string(), preset);
+    }
+}
+auto Game::loadPieces() -> void {}

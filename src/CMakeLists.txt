@@ -25,9 +25,12 @@ add_executable(
     Chess-FECIC
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/Game.cpp
+    ${PROJECT_SOURCE_DIR}/Preset.cpp
     ${PROJECT_SOURCE_DIR}/AssetManager.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/MainMenu.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Button.cpp
+    ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Logo.cpp
+    ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Popup/Play.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Chess.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/KillZone.cpp
@@ -55,9 +58,6 @@ set_target_properties(
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
-set (source "${CMAKE_SOURCE_DIR}/assets")
-set (destination "${CMAKE_BINARY_DIR}")
-
 
 target_link_libraries(Chess-FECIC
     PRIVATE
@@ -68,5 +68,4 @@ target_link_libraries(Chess-FECIC
 )
 
 
-file(COPY ${source} DESTINATION ${destination})
 install(TARGETS Chess-FECIC DESTINATION ${CHESS_FECIC_INSTALL_BIN_DIR})

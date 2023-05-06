@@ -4,9 +4,9 @@
 #include "AssetManager.hpp"
 #include "Scenes/MainMenu/MainMenu.hpp"
 #include "Scenes/Scene.hpp"
+#include <filesystem>
 #include <memory>
 #include <queue>
-
 
 class Game {
   public:
@@ -20,6 +20,12 @@ class Game {
 
   private:
     auto catchEvents() -> void;
+
+    auto loadTextures() -> void;
+    auto loadFonts() -> void;
+    auto loadSFX() -> void;
+    auto loadPresets() -> void;
+    auto loadPieces() -> void;
 
     sf::RenderWindow m_render;
     std::unique_ptr<Scene::IScene> m_cur_scene;

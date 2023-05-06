@@ -7,6 +7,8 @@
 #include <array>
 #include <memory>
 
+// TODO: Implement a dynamic way of generate a board;
+
 struct Tile : sf::RectangleShape {
 
     sf::Color original_color;

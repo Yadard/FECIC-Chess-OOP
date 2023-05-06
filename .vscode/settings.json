@@ -71,7 +71,11 @@
         "codecvt": "cpp",
         "iomanip": "cpp",
         "optional": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "complex": "cpp",
+        "source_location": "cpp",
+        "typeindex": "cpp",
+        "filesystem": "cpp"
     },
     "C_Cpp.files.exclude": {
         "**/build": true,
@@ -85,10 +89,14 @@
         "fuchsia-default-arguments-calls"
     ],
     "cSpell.words": [
+        "ASSETMANAGER",
+        "FECIC",
         "gameloop",
         "hitbox",
         "Killzones",
         "MAINMENU",
-        "PIXABLER"
+        "PIXABLER",
+        "SFML",
+        "Valenzka"
     ],
 }

@@ -9,4 +9,6 @@ int main() {
     game.loadAssets();
 
     game.gameloop();
+
+    return EXIT_SUCCESS;
 }
