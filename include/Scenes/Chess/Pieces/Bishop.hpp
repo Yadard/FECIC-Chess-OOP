@@ -6,7 +6,6 @@
 class Bishop : public Piece {
   public:
     Bishop(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
-    ~Bishop() override = default;
 
     auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;
 };

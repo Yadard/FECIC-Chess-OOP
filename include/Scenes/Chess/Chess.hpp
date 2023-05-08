@@ -1,6 +1,9 @@
 #ifndef CHESS_HPP
 #define CHESS_HPP
 
+#include "./../../Preset.hpp"
+#include "./../Scene.hpp"
+#include "./../Victory.hpp"
 #include "Board.hpp"
 #include "History.hpp"
 #include "KillZone.hpp"
@@ -9,40 +12,49 @@
 #include <functional>
 #include <unordered_map>
 
-#define EVENT_AMOUNT_SFML 23
-
-class Chess {
+namespace Scene {
+class Chess : public IScene, public Match {
   public:
-    Chess();
-    auto addPiece(std::unique_ptr<Piece> piece) -> void;
-    auto registerSprite(std::string key, sf::Sprite &sprite) -> void;
-    auto getSprite(std::string key) -> const sf::Sprite &;
-    auto run() -> void;
-    auto win(Team winner) -> void;
+    Chess(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(IScene *)> t_change_scene, Preset &preset, bool new_preset = false);
+
+    auto update(sf::RenderWindow &render) -> void override;
+    auto draw(sf::RenderWindow &render) -> void override;
+    auto handle_input(std::function<void(Scene::IScene *)> change_scene, std::function<void()> quit, sf::Event event) -> void override;
+
+    auto win(Team team) -> void override;
+    auto createPiece(std::string name, Team team, sf::Vector2u pos) -> Piece * override;
+
+    // std::array<std::function<void(sf::Event &)>, EVENT_AMOUNT_SFML> _event_handlers{nullptr};
 
   private:
+    auto loadPresetOnBoard(Preset &preset) -> void;
+    auto handleMousePress(sf::Event event) -> void;
+    auto handleKeyboardPress(sf::Event event) -> void;
+
+    auto executeMove(Move &move) -> Piece *;
+    auto clearMoves(const Piece *piece, sf::Vector2u pos) -> void;
+    auto highlightMoves(size_t piece_index) -> void;
+    auto reachedEnemyField(Move &move) -> bool;
     auto endTurn() -> void;
-    auto onMouseButtonPress(sf::Event &event) -> void;
-    auto onWindowClose(sf::Event &event) -> void;
 
-    std::array<std::function<void(sf::Event &)>, EVENT_AMOUNT_SFML> _event_handlers{nullptr};
-
-    sf::RenderWindow _render;
-    Board _board;
-    History _history;
+    Board m_board;
+    History m_history;
+    Preset m_preset;
+    sf::Vector2f m_viewport;
     struct __Killzones {
         KillZone starter_team, last_team;
 
         __Killzones(KillZone __a, KillZone __b) : starter_team(__a), last_team(__b) {}
-    } _killzones;
-    bool _drawn = false;
-    std::unique_ptr<Piece> *selected_piece = nullptr;
-    Team current_turn = Team::WHITE;
+    } m_killzones;
+    bool m_new_preset = false;
+    const Piece *m_selected_piece = nullptr;
+    Team m_current_turn = Team::WHITE;
     struct {
-        size_t starter = 0, last = 0;
-    } pieces_amount;
+        size_t white = 0, black = 0;
+    } m_pieces_amount;
 
-    std::unordered_map<std::string, sf::Sprite> sprites;
+    std::unique_ptr<Victory> m_victory;
 };
+} // namespace Scene
 
 #endif // CHESS_HPP

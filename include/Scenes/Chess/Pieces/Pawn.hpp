@@ -1,13 +1,11 @@
 #ifndef PAWN_HPP
 #define PAWN_HPP
 
-#include "AssetManager.hpp"
 #include "Piece.hpp"
 
 class Pawn : public Piece {
   public:
     Pawn(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
-    ~Pawn() override = default;
 
     auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;
 

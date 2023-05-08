@@ -55,12 +55,14 @@ find_package(OpenCV REQUIRED)
 
 add_executable(
     Chess-FECIC
+
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/Game.cpp
     ${PROJECT_SOURCE_DIR}/Preset.cpp
     ${PROJECT_SOURCE_DIR}/AssetManager.cpp
+    ${PROJECT_SOURCE_DIR}/Scenes/Button.cpp
+    ${PROJECT_SOURCE_DIR}/Scenes/Victory.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/MainMenu.cpp
-    ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Button.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Logo.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/MainMenu/Popup/Play.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Chess.cpp

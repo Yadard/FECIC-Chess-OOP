@@ -6,7 +6,6 @@
 class King : public Piece {
   public:
     King(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
-    ~King() override = default;
 
     auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;
 };

@@ -12,7 +12,8 @@ static void setSpriteSize(sf::Sprite &sprite, sf::Vector2f size) {
 
 void quit(sf::RenderWindow &render) { render.close(); }
 
-Scene::MainMenu::MainMenu(sf::RenderWindow &render) : m_play_btn("Play"), m_replay_btn("Replay"), m_quit_btn("Quit"), m_popup(render) {
+Scene::MainMenu::MainMenu(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(IScene *)> t_change_scene)
+    : IScene(render, t_quit, t_change_scene), m_popup(render, t_quit, t_change_scene, m_ugly_fix) {
     m_mouse_hitbox.width = 4;
     m_mouse_hitbox.height = 4;
 
@@ -22,9 +23,10 @@ Scene::MainMenu::MainMenu(sf::RenderWindow &render) : m_play_btn("Play"), m_repl
     m_background.setTexture(&AssetManager::GetInstance().getTexture("MainMenu.BG"));
 
     m_tile_size = sf::Vector2f(viewport.x / 8.0, viewport.y / 8.0);
-    m_play_btn.setBGSize(m_tile_size);
-    m_replay_btn.setBGSize(m_tile_size);
-    m_quit_btn.setBGSize(m_tile_size);
+    m_play_btn.getText().setString("Play");
+    m_replay_btn.getText().setString("Replay");
+    m_quit_btn.getText().setString("Quit");
+
     m_selected_highlight.setSize(m_tile_size);
     m_selected_highlight.setFillColor(sf::Color::Transparent);
     m_selected_highlight.setOutlineColor(sf::Color(255, 0, 0));
@@ -36,18 +38,59 @@ Scene::MainMenu::MainMenu(sf::RenderWindow &render) : m_play_btn("Play"), m_repl
     setSpriteSize(m_piece, {100.0, 100.0});
     m_piece.setOrigin(50, 50);
 
-    m_play_btn.setPosition(pos);
+    setupButtons(m_play_btn, pos);
     pos.y += m_tile_size.y;
     m_selected_highlight.setPosition({pos.x - m_tile_size.x, pos.y});
     m_piece_origin_pos = sf::Vector2f((pos.x - m_tile_size.x) + m_tile_size.x / 2.0, pos.y + m_tile_size.y / 2.0);
     m_piece.setPosition(m_piece_origin_pos);
-    m_replay_btn.setPosition(pos);
+    setupButtons(m_replay_btn, pos);
     pos.y += m_tile_size.y;
-    m_quit_btn.setPosition(pos);
+    setupButtons(m_quit_btn, pos);
 
     m_move_sfx.setBuffer(AssetManager::GetInstance().getSFX("MainMenu.PieceMove"));
-
     m_logo.setPosition({viewport.x / 2.0f, m_tile_size.y * 1.5f - 20.0f});
+
+    m_play_btn.setAction([this]() {
+        m_move_sfx.play();
+        m_play_btn.hide();
+        m_replay_btn.deactivate();
+        m_quit_btn.deactivate();
+        m_selected_highlight.setOutlineColor(sf::Color::Transparent);
+        m_piece.move({m_tile_size.x, -m_tile_size.y});
+        m_popup.show();
+    });
+    m_replay_btn.setAction([this]() {
+        m_move_sfx.play();
+        m_replay_btn.hide();
+        m_play_btn.deactivate();
+        m_quit_btn.deactivate();
+        m_selected_highlight.setOutlineColor(sf::Color::Transparent);
+        m_piece.move({m_tile_size.x, 0});
+    });
+    m_quit_btn.setAction([this, &render]() {
+        m_move_sfx.stop();
+        m_quit();
+    });
+}
+
+auto Scene::MainMenu::setupButtons(Button &btn, sf::Vector2f position) -> void {
+    btn.getText().setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
+    uint32_t font_size = 45;
+    btn.getText().setFillColor(sf::Color::White);
+    btn.getText().setCharacterSize(font_size);
+
+    sf::RectangleShape *bg = new sf::RectangleShape(m_tile_size);
+    bg->setPosition(position);
+    btn.getText().setPosition(position);
+    btn.setSize(m_tile_size);
+    position.x += (float)bg->getSize().x / 2.0;
+    position.y += (float)bg->getSize().y / 2.0;
+    position.y -= btn.getText().getCharacterSize() / 2.0;
+    position.x -= (float)btn.getText().getGlobalBounds().width / 2.0;
+    btn.getText().setPosition(position);
+    btn.setHitbox(bg->getGlobalBounds());
+    bg->setFillColor(sf::Color(0, 255, 0, 150));
+    btn.setBackground(bg);
 }
 
 auto Scene::MainMenu::update(sf::RenderWindow &render) -> void { draw(render); }
@@ -57,16 +100,16 @@ auto Scene::MainMenu::draw(sf::RenderWindow &render) -> void {
     render.draw(m_selected_highlight);
 
     this->m_logo.draw(render);
-    this->m_play_btn.draw(render);
-    this->m_replay_btn.draw(render);
-    this->m_quit_btn.draw(render);
+    render.draw(m_play_btn);
+    render.draw(m_replay_btn);
+    render.draw(m_quit_btn);
 
     this->m_popup.draw(render);
 }
 
 auto Scene::MainMenu::handle_input(std::function<void(Scene::IScene *)> change_scene, std::function<void()> quit, sf::Event event) -> void {
     if (m_popup.isVisible()) {
-        if (m_popup.handleInput(change_scene, event, m_mouse_hitbox)) {
+        if (m_popup.handleInput(change_scene, event, m_mouse_hitbox) && !m_ugly_fix) {
             m_piece.setPosition(m_piece_origin_pos);
             m_play_btn.show();
             m_replay_btn.show();
@@ -84,30 +127,8 @@ auto Scene::MainMenu::handle_input(std::function<void(Scene::IScene *)> change_s
             m_quit_btn.show();
             m_selected_highlight.setOutlineColor(sf::Color(255, 0, 0));
         }
-
-        if (m_play_btn.clicked(event, m_mouse_hitbox)) {
-            m_move_sfx.play();
-            m_play_btn.hide();
-            m_replay_btn.deactivate();
-            m_quit_btn.deactivate();
-            m_selected_highlight.setOutlineColor(sf::Color::Transparent);
-            m_piece.move({m_tile_size.x, -m_tile_size.y});
-            m_popup.show();
-            return;
-        }
-        if (m_replay_btn.clicked(event, m_mouse_hitbox)) {
-            m_move_sfx.play();
-            m_replay_btn.hide();
-            m_play_btn.deactivate();
-            m_quit_btn.deactivate();
-            m_selected_highlight.setOutlineColor(sf::Color::Transparent);
-            m_piece.move({m_tile_size.x, 0});
-            return;
-        }
-        if (m_quit_btn.clicked(event, m_mouse_hitbox)) {
-            m_move_sfx.stop();
-            quit();
-            return;
-        }
     }
+    m_play_btn.handleEvent(event);
+    m_replay_btn.handleEvent(event);
+    m_quit_btn.handleEvent(event);
 }

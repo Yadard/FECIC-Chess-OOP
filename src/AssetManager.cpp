@@ -36,8 +36,13 @@ AssetManager::PieceFactory::~PieceFactory() {
 
 #include <iostream>
 
-auto AssetManager::PieceFactory::createPiece(std::string name, Team t_team, Move::BoardPos t_position) -> Piece * {
-    return m_pieces.at(name).piece_maker(t_team, t_position, AssetManager::GetInstance().getTexture(name));
+auto AssetManager::PieceFactory::createPiece(std::string name, Team team, Move::BoardPos position) -> Piece * {
+    std::string texture_name = name;
+    if (team == Team::BLACK)
+        texture_name += "_Black";
+    else
+        texture_name += "_White";
+    return m_pieces.at(name).piece_maker(team, position, AssetManager::GetInstance().getTexture(texture_name));
 }
 auto AssetManager::PieceFactory::loadPiece(std::string name) -> void {
     std::string file(name + ".png");
@@ -45,17 +50,26 @@ auto AssetManager::PieceFactory::loadPiece(std::string name) -> void {
     black_texture.append(file);
     std::filesystem::path white_texture("./../assets/sprites/white");
     white_texture.append(file);
+    TextureInfo entry;
 
     sf::Texture texture;
+    texture.setSmooth(true);
     if (!texture.loadFromFile(black_texture.string().c_str())) {
         std::cerr << "Failed to load black sprite for " << name << std::endl;
     }
-    AssetManager::GetInstance().registerTexture(std::string(name + "_Black"), texture);
 
-    if (!texture.loadFromFile(black_texture.string().c_str())) {
+    std::string key(name + "_Black");
+    AssetManager::GetInstance().registerTexture(key, texture);
+    entry.piece_black_texture = &AssetManager::GetInstance().getTexture(key);
+
+    if (!texture.loadFromFile(white_texture.string().c_str())) {
         std::cerr << "Failed to load white sprite for " << name << std::endl;
     }
-    AssetManager::GetInstance().registerTexture(std::string(name + "_White"), texture);
+    key = name;
+    key += "_White";
+    AssetManager::GetInstance().registerTexture(key, texture);
+    entry.piece_white_texture = &AssetManager::GetInstance().getTexture(key);
+    m_sprite_info[name] = entry;
 
     loadImplementation(name);
 }
@@ -118,4 +132,11 @@ auto AssetManager::PieceFactory::openDLL(std::filesystem::path path, DLLHandle_t
     }
 #endif
     return handle;
+}
+
+auto AssetManager::PieceFactory::cbegin() -> std::unordered_map<std::string, AssetManager::PieceFactory::TextureInfo>::const_iterator {
+    return m_sprite_info.cbegin();
+}
+auto AssetManager::PieceFactory::cend() -> std::unordered_map<std::string, AssetManager::PieceFactory::TextureInfo>::const_iterator {
+    return m_sprite_info.cend();
 }

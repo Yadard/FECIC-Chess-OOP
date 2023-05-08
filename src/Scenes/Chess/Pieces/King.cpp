@@ -1,6 +1,8 @@
 #include "Scenes/Chess/Pieces/King.hpp"
 
-King::King(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : Piece(t_team, t_position, t_texture) {}
+King::King(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : Piece(t_team, t_position, t_texture) {
+    onDie = [&](Match *match) { match->win(t_team); };
+}
 
 auto King::getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & {
     this->_move_list_data.clear();

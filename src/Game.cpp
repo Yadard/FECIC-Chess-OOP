@@ -17,7 +17,7 @@ auto Game::loadAssets() -> void {
 }
 
 auto Game::gameloop() -> void {
-    m_cur_scene.reset(new Scene::MainMenu(m_render));
+    m_cur_scene.reset(new Scene::MainMenu(m_render, m_quit, m_change_scene));
 
     while (m_render.isOpen()) {
 
@@ -120,6 +120,9 @@ auto Game::loadPresets() -> void {
     std::filesystem::path path("./../presets");
     Preset preset;
     for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (AssetManager::GetInstance().hasPreset(entry.path().stem().string()))
+            continue;
+
         if (preset.loadFromFile(entry.path()))
             std::cout << "loaded: " << entry.path().stem() << std::endl;
         else

@@ -1,6 +1,7 @@
 #ifndef HISTORY_HPP
 #define HISTORY_HPP
 
+#include "./../../AssetManager.hpp"
 #include "Move.hpp"
 #include "Pieces/piece.hpp"
 #include <SFML/Graphics.hpp>
@@ -8,17 +9,11 @@
 #include <string>
 #include <vector>
 
+
 struct Entry {
     Entry(Move t_move) : move(t_move) {
         if (t_move.getPiece())
             sprite = t_move.getPiece()->getSprite();
-
-        if (!loaded) {
-            if (!font.loadFromFile("./../assets/arial.ttf")) {
-                std::cout << "AAA" << std::endl;
-            }
-            loaded = true;
-        }
 
         text.setFillColor(sf::Color::Black);
         std::string str = "";
@@ -31,7 +26,7 @@ struct Entry {
         str += static_cast<char>('0' + t_move.getMoveDestination().y);
 
         text.setString(str.c_str());
-        text.setFont(font);
+        text.setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
         text.setCharacterSize(25);
     }
 

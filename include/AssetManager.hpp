@@ -45,24 +45,32 @@ class AssetManager {
 
     class PieceFactory {
       public:
+        struct TextureInfo {
+            const sf::Texture *piece_black_texture = nullptr;
+            const sf::Texture *piece_white_texture = nullptr;
+        };
+
         ~PieceFactory();
 
         auto createPiece(std::string name, Team t_team, Move::BoardPos t_position) -> Piece *;
         auto loadPiece(std::string name) -> void;
+        auto cbegin() -> std::unordered_map<std::string, AssetManager::PieceFactory::TextureInfo>::const_iterator;
+        auto cend() -> std::unordered_map<std::string, AssetManager::PieceFactory::TextureInfo>::const_iterator;
 
       private:
-        auto loadImplementation(std::string name) -> void;
-        auto getFunc(DLLHandle_t handle) -> PieceMaker;
-        auto openDLL(std::filesystem::path path, DLLHandle_t handle) -> DLLHandle_t;
-        auto closeDLL(DLLHandle_t handle) -> void;
-
         struct Entry {
             DLLHandle_t handle = nullptr;
             PieceMaker piece_maker = nullptr;
         };
 
+        auto loadImplementation(std::string name) -> void;
+        auto getFunc(DLLHandle_t handle) -> PieceMaker;
+        auto openDLL(std::filesystem::path path, DLLHandle_t handle) -> DLLHandle_t;
+        auto closeDLL(DLLHandle_t handle) -> void;
+
         std::filesystem::path folder = "./../pieces";
         std::unordered_map<std::string, Entry> m_pieces;
+        std::unordered_map<std::string, TextureInfo> m_sprite_info;
     } piece_factory;
 
   private:

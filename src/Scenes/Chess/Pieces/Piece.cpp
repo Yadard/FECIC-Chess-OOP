@@ -5,9 +5,12 @@ Piece::Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_textur
     _sprite.setTexture(t_texture, true);
 }
 
-auto Piece::getOldMoves() -> const MoveList & { return this->_move_list_data; }
-auto Piece::getTeam() -> Team { return _team; }
+auto Piece::getOldMoves() const -> const MoveList & { return this->_move_list_data; }
+auto Piece::getTeam() const -> Team { return _team; }
+auto Piece::getSprite() const -> const sf::Sprite & { return _sprite; }
 auto Piece::getSprite() -> sf::Sprite & { return _sprite; }
+
+auto Piece::addOldMoves(Move move) -> void { _move_list_data.emplace_back(move); }
 
 auto Piece::goFowards(Move::BoardPos position, size_t amount) -> Move::BoardPos {
     _team == Team::BLACK ? position.y -= amount : position.y += amount;

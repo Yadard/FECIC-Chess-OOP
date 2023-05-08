@@ -1,5 +1,5 @@
 Name: Piss
 Board: 8x8
 Pieces:
-    Pawn[0,0, WHITE]
-    Pawn[0,7, BLACK]
+    Pawn[2,3, WHITE]
+    Pawn[5,4, BLACK]

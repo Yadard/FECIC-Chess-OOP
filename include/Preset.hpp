@@ -34,6 +34,13 @@ class Preset {
     auto loadFromFile(const char *path) -> bool;
     auto loadFromFile(const std::filesystem::path &path) -> bool;
 
+    auto copy(const Preset &preset) -> Preset &;
+
+    auto setBoardSize(sf::Vector2u board_size) -> void;
+    auto setName(std::string name) -> void;
+    auto addPiecesInfo(PieceInfo piece) -> void;
+    auto erasePiecesInfo(size_t index) -> void;
+
     auto getBoardSize() const -> sf::Vector2u;
     auto getName() const -> const std::string &;
     auto getPiecesInfo() const -> const std::vector<PieceInfo> &;

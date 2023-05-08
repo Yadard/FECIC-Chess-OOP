@@ -27,11 +27,13 @@ auto Preset::loadFromFile(const char *path) -> bool {
     bool parsing_pieces = false;
     ParsingInfo parse_info;
     parse_info.file_name = path;
+    m_pieces.clear();
 
     if (file.is_open()) {
         std::string line;
 
         for (size_t i = 0; std::getline(file, line); i++) {
+            std::cout << line << '\n';
             parse_info.line_raw = line;
             parse_info.line_num = i;
             if (!parsing_pieces) {
@@ -60,6 +62,20 @@ auto Preset::loadFromFile(const char *path) -> bool {
 }
 auto Preset::loadFromFile(const std::filesystem::path &path) -> bool { return this->loadFromFile(path.string().c_str()); }
 
+auto Preset::copy(const Preset &preset) -> Preset & {
+    m_name = preset.getName();
+    m_board_size = preset.getBoardSize();
+    for (auto &piece : preset.getPiecesInfo())
+        m_pieces.push_back(piece);
+
+    return *this;
+}
+
+auto Preset::setBoardSize(sf::Vector2u board_size) -> void { m_board_size = board_size; }
+auto Preset::setName(std::string name) -> void { m_name = name; }
+auto Preset::addPiecesInfo(PieceInfo piece) -> void { m_pieces.push_back(piece); }
+auto Preset::erasePiecesInfo(size_t index) -> void { m_pieces.erase(std::next(m_pieces.begin(), index)); }
+
 auto Preset::getBoardSize() const -> sf::Vector2u { return this->m_board_size; }
 auto Preset::getName() const -> const std::string & { return this->m_name; }
 auto Preset::getPiecesInfo() const -> const std::vector<PieceInfo> & { return this->m_pieces; }
@@ -84,8 +100,10 @@ auto Preset::parsePiece(ParsingInfo parsing_info) -> void {
     std::string_view team_raw = "";
 
     for (size_t i = 0; i < parsing_info.line_raw.length(); i++) {
-        if (isblank(parsing_info.line_raw[i]))
+        if (isblank(parsing_info.line_raw[i])) {
             ++offset;
+            continue;
+        }
 
         if (found_opening) {
             if (isClosingToken(parsing_info.line_raw[i])) {
@@ -109,10 +127,14 @@ auto Preset::parsePiece(ParsingInfo parsing_info) -> void {
             } else if (parsing_info.line_raw[i] == ',') {
                 if (col == std::string::npos) {
                     col = std::stoul(std::string(parsing_info.line_raw.substr(start, len)));
+                    piece.board_pos.x = col;
                     start = 0;
+                    len = 0;
                 } else if (row == std::string::npos) {
                     row = std::stoul(std::string(parsing_info.line_raw.substr(start, len)));
                     start = i + 1;
+                    piece.board_pos.y = row;
+                    len = 0;
                     offset = 0;
                 }
             }

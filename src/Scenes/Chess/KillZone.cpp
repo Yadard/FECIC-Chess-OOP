@@ -18,4 +18,4 @@ auto KillZone::draw(sf::RenderWindow &render) -> void {
 
 auto KillZone::update(sf::RenderWindow &render) -> void { this->draw(render); }
 
-auto KillZone::addPiece(sf::Sprite &piece) -> void { pieces_killed.emplace_back(piece); }
+auto KillZone::addPiece(const sf::Sprite &piece) -> void { pieces_killed.emplace_back(piece); }

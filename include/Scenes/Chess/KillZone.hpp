@@ -11,7 +11,7 @@ class KillZone : sf::RectangleShape {
     auto draw(sf::RenderWindow &render) -> void;
     auto update(sf::RenderWindow &render) -> void;
 
-    auto addPiece(sf::Sprite &piece) -> void;
+    auto addPiece(const sf::Sprite &piece) -> void;
 
   private:
     std::vector<sf::Sprite> pieces_killed;

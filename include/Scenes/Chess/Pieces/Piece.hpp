@@ -1,6 +1,7 @@
 #ifndef PIECE_HPP
 #define PIECE_HPP
 
+#include "./../Match.hpp"
 #include "./../Move.hpp"
 #include <SFML/Graphics.hpp>
 #include <functional>
@@ -9,13 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-class Chess;
 class Piece;
-
-enum class Team {
-    WHITE, // Start the game, tradicionally the white pieces
-    BLACK  // Goes last in the game, tradicionally the black pieces
-};
 
 #define FACTORY_NAME_PIECE_MAKER "createPiece"
 
@@ -34,17 +29,18 @@ using PieceMaker = Piece *(*)(Team, Move::BoardPos, const sf::Texture &t_texture
 class Piece {
   public:
     Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
-    virtual ~Piece() {}
-    virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & { return _move_list_data; }
+    virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> const MoveList & = 0;
 
-    auto getOldMoves() -> const MoveList &;
-    auto getTeam() -> Team;
+    auto getOldMoves() const -> const MoveList &;
+    auto getTeam() const -> Team;
+    auto getSprite() const -> const sf::Sprite &;
     auto getSprite() -> sf::Sprite &;
+    auto addOldMoves(Move move) -> void;
 
     Move::BoardPos position;
-    std::function<void()> onDie;
-    std::function<void(Move::BoardPos)> onMove;
-    std::function<void(std::unique_ptr<Piece> &, std::unordered_map<std::string, sf::Sprite> &)> onReachEnd;
+    std::function<void(Match *)> onDie;
+    std::function<void(Match *, Move::BoardPos)> onMove;
+    std::function<void(Match *, std::unique_ptr<Piece> &)> onReachEnd;
 
   protected:
     auto goFowards(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
