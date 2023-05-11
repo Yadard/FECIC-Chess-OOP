@@ -1,3 +1,6 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
 #include "Scenes/MainMenu/Logo.hpp"
 
 Logo::Logo() {

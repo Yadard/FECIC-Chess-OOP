@@ -1,16 +1,16 @@
 #ifndef CHESS_HPP
 #define CHESS_HPP
 
-#include "./../../Preset.hpp"
-#include "./../Scene.hpp"
-#include "./../Victory.hpp"
-#include "Board.hpp"
-#include "History.hpp"
-#include "KillZone.hpp"
+#include "Preset.hpp"
+#include "Scenes/Chess/Board.hpp"
+#include "Scenes/Chess/History.hpp"
+#include "Scenes/Chess/KillZone.hpp"
+#include "Scenes/Scene.hpp"
+#include "Scenes/Victory.hpp"
+
+
 #include <SFML/Graphics.hpp>
-#include <array>
 #include <functional>
-#include <unordered_map>
 
 namespace Scene {
 class Chess : public IScene, public Match {

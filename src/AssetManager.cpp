@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "AssetManager.hpp"
 
 std::unique_ptr<AssetManager> AssetManager::m_instance = nullptr;

@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Button.hpp"
 
 auto Button::draw(sf::RenderTarget &target, sf::RenderStates states) const -> void {

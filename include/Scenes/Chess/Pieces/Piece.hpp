@@ -1,13 +1,12 @@
 #ifndef PIECE_HPP
 #define PIECE_HPP
 
-#include "./../Match.hpp"
-#include "./../Move.hpp"
+#include "Scenes/Chess/Match.hpp"
+#include "Scenes/Chess/Move.hpp"
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 class Piece;

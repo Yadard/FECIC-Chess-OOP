@@ -1,3 +1,6 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
 #include "Scenes/MainMenu/MainMenu.hpp"
 
 static void setSpriteSize(sf::Sprite &sprite, sf::Vector2f size) {

@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/History.hpp"
 
 History::History(sf::Vector2f position, sf::Vector2f size) {

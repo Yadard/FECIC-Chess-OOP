@@ -1,8 +1,8 @@
 #ifndef HISTORY_HPP
 #define HISTORY_HPP
 
-#include "./../../AssetManager.hpp"
-#include "Move.hpp"
+#include "AssetManager.hpp"
+#include "Scenes/Chess/Move.hpp"
 #include "Pieces/piece.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>

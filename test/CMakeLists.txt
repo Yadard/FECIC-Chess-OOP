@@ -8,28 +8,49 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(
-  tests
-  tester.cpp
-)
+function(CreateTest test)
+    message("config for test_${test}")
 
-target_link_libraries(
-  tests
-  GTest::gtest_main
-)
+    add_executable(
+        ${test}
+        ${PROJECT_SOURCE_DIR}/test/test_${test}.cpp
+        ${PROJECT_SOURCE_DIR}/src/Preset.cpp
+        ${PROJECT_SOURCE_DIR}/src/Scenes/Chess/Pieces/Piece.cpp
+    )
 
-add_test(
-    NAME mytest
-    COMMAND tests
-)
+    target_link_libraries(
+        ${test}
+        GTest::gtest_main
+        sfml-audio
+        sfml-graphics
+        sfml-system
+        sfml-window
+    )
 
-set_target_properties( 
-    tests
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
+    add_test(
+        NAME test_${test}
+        COMMAND ${test}
+    )
 
+    add_test(GoogleTest ${test})
+
+    target_include_directories(
+        ${test}
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+    )
+
+    if (WIN32)
+        add_custom_command(
+            TARGET ${test} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${test}> $<TARGET_FILE_DIR:${test}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif ()
+endfunction()
+
+
+CreateTest(preset)
 include(GoogleTest)
-gtest_discover_tests(tests)
+gtest_discover_tests(preset PROPERTIES TEST_DISCOVERY_TIMEOUT 600)
+

@@ -1,10 +1,10 @@
 #ifndef VICTORY_HPP
 #define VICTORY_HPP
 
-#include "./../AssetManager.hpp"
-#include "./MainMenu/MainMenu.hpp"
-#include "./Scene.hpp"
-#include "Button.hpp"
+#include "AssetManager.hpp"
+#include "Scenes/Button.hpp"
+#include "Scenes/MainMenu/MainMenu.hpp"
+#include "Scenes/Scene.hpp"
 #include <SFML/Graphics.hpp>
 
 class Victory : public sf::Drawable {

@@ -13,6 +13,7 @@ function(CreatePiece arg)
         ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/${arg}.cpp
         ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
         ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
+        ${PROJECT_SOURCE_DIR}/Preset.cpp
         ${PROJECT_SOURCE_DIR}/AssetManager.cpp
     )
 
@@ -32,6 +33,10 @@ function(CreatePiece arg)
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/pieces"
     )
+
+    target_include_directories(${arg} PUBLIC include)
+    target_precompile_headers(${arg} REUSE_FROM Chess-FECIC)
+
 endfunction()
 
 FetchContent_Declare(
@@ -47,8 +52,6 @@ if(NOT sfml_POPULATED)
 endif()
 FetchContent_MakeAvailable(sfml)
 
-message("A: ${PROJECT_SOURCE_DIR}/Scenes/Chess/History.cpp")
-include_directories(${sfml_SOURCE_DIR}/include)
 find_package(OpenCV REQUIRED)
 
 
@@ -71,6 +74,16 @@ add_executable(
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Board.cpp
     ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
+)
+
+target_include_directories(
+    Chess-FECIC
+    PRIVATE
+    ${sfml_SOURCE_DIR}/include
+)
+
+target_precompile_headers(Chess-FECIC PUBLIC
+${CHESS_FECIC_INSTALL_INCLUDE_DIR}/pch.hpp
 )
 
 

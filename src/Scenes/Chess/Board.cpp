@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/Board.hpp"
 
 static sf::Vector2f resizeSprite(sf::Sprite &sprite, const sf::Vector2f &size, bool fit_to_height = true) {

@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/Pieces/Pawn.hpp"
 
 Pawn::Pawn(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : Piece(t_team, t_position, t_texture), start_pos(t_position) {

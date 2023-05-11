@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/Move.hpp"
 
 Move::Move(Piece *t_piece, BoardPos t_destination, BoardPos t_origin) : _piece(t_piece), _destination(t_destination), _origin(t_origin) {}

@@ -1,11 +1,11 @@
 #ifndef MAINMENU_HPP
 #define MAINMENU_HPP
 
-#include "./../../AssetManager.hpp"
-#include "./../Button.hpp"
-#include "./../Scene.hpp"
-#include "./Popup/Play.hpp"
-#include "Logo.hpp"
+#include "AssetManager.hpp"
+#include "Scenes/Button.hpp"
+#include "Scenes/MainMenu/Logo.hpp"
+#include "Scenes/MainMenu/Popup/Play.hpp"
+#include "Scenes/Scene.hpp"
 #include <iostream>
 
 namespace Scene {

@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Victory.hpp"
 
 Victory::Victory(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(Scene::IScene *)> t_change_scene, Team winner, Preset preset,

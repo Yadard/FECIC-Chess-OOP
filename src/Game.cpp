@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Game.hpp"
 
 static sf::Texture generate_pattern(sf::Vector2f rect_size, sf::Vector2u amount, sf::Color primary_color = sf::Color(255, 213, 153),
@@ -123,11 +127,14 @@ auto Game::loadPresets() -> void {
         if (AssetManager::GetInstance().hasPreset(entry.path().stem().string()))
             continue;
 
-        if (preset.loadFromFile(entry.path()))
+        try {
+            preset.loadFromFile(entry.path());
             std::cout << "loaded: " << entry.path().stem() << std::endl;
-        else
+            AssetManager::GetInstance().registerPreset(entry.path().stem().string(), preset);
+        } catch (Preset::ParsingError &error) {
             std::cout << "failed: " << entry.path().stem() << std::endl;
-        AssetManager::GetInstance().registerPreset(entry.path().stem().string(), preset);
+            std::cout << error.what() << std::endl;
+        }
     }
 }
 

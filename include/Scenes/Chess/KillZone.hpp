@@ -1,7 +1,7 @@
 #ifndef KILLZONE_HPP
 #define KILLZONE_HPP
 
-#include "Pieces/piece.hpp"
+#include "Scenes/Chess/Pieces/Piece.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
 

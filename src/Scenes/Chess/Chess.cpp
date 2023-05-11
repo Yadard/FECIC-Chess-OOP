@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/Chess.hpp"
 #include "AssetManager.hpp"
 

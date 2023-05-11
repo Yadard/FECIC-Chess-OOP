@@ -1,10 +1,10 @@
 #ifndef PLAY_HPP
 #define PLAY_HPP
 
-#include "./../../../AssetManager.hpp"
-#include "./../../Button.hpp"
-#include "./../../Chess/Board.hpp"
-#include "./../../Scene.hpp"
+#include "AssetManager.hpp"
+#include "Scenes/Button.hpp"
+#include "Scenes/Chess/Board.hpp"
+#include "Scenes/Scene.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
 

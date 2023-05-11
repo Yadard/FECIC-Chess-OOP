@@ -1,3 +1,7 @@
+// clang-format off
+#include "pch.hpp"
+// clang-format on
+
 #include "Scenes/Chess/Pieces/Piece.hpp"
 
 Piece::Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) : _team(t_team), position(t_position), onDie(nullptr), onMove(nullptr) {

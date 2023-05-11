@@ -75,7 +75,11 @@
         "complex": "cpp",
         "source_location": "cpp",
         "typeindex": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp",
+        "valarray": "cpp",
+        "*.def": "cpp"
     },
     "C_Cpp.files.exclude": {
         "**/build": true,
@@ -90,6 +94,7 @@
     ],
     "cSpell.words": [
         "ASSETMANAGER",
+        "BOARDPOS",
         "btns",
         "FECIC",
         "gameloop",

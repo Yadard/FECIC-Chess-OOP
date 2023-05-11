@@ -5,7 +5,6 @@
 #include "Pieces/piece.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <set>
 #include <vector>
 
 // TODO: Implement a dynamic way of generate a board;

@@ -1,7 +1,7 @@
 #ifndef LOGO_HPP
 #define LOGO_HPP
 
-#include "./../../AssetManager.hpp"
+#include "AssetManager.hpp"
 
 class Logo {
   public:
