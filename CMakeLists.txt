@@ -27,7 +27,7 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY ${CMAKE_SOURCE_DIR}/presets DESTINATION ${CMAKE_BINARY_DIR})
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/presets)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/pieces)
 
 

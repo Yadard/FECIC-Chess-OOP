@@ -14,6 +14,7 @@ function(CreatePiece arg)
         ${PROJECT_SOURCE_DIR}/Scenes/Chess/Pieces/Piece.cpp
         ${PROJECT_SOURCE_DIR}/Scenes/Chess/Move.cpp
         ${PROJECT_SOURCE_DIR}/Preset.cpp
+        ${PROJECT_SOURCE_DIR}/Replay.cpp
         ${PROJECT_SOURCE_DIR}/AssetManager.cpp
     )
 
