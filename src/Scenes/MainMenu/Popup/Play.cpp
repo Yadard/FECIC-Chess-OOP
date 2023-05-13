@@ -5,7 +5,8 @@
 #include "Scenes/MainMenu/Popup/Play.hpp"
 #include "Scenes/Chess/Chess.hpp"
 
-PlayPopup::PlayPopup(sf::RenderWindow &t_render, std::function<void()> t_quit, std::function<void(Scene::IScene *)> t_change_scene, bool &ugly_fix) {
+PlayPopup::PlayPopup(sf::RenderWindow &t_render, std::function<void()> t_quit, std::function<void(Scene::IScene *)> t_change_scene, bool &ugly_fix)
+    : m_quit(t_quit), m_change_scene(t_change_scene) {
     m_play_btn.getText().setString("Play");
     m_close_btn.getText().setString("Close");
     m_show = false;
@@ -25,6 +26,7 @@ PlayPopup::PlayPopup(sf::RenderWindow &t_render, std::function<void()> t_quit, s
 
     sf::Vector2f size(viewport.x * 0.40f, viewport.y * 0.40f);
     sf::Vector2f pos(base.x + viewport.x * 0.50f, base.y + viewport.y * 0.42f);
+    m_current_preset.setBoardSize({5, 5});
     m_preview.makeBoard(pos, size, {5, 5});
     m_piece_selector.setSize(size);
 
@@ -36,35 +38,43 @@ PlayPopup::PlayPopup(sf::RenderWindow &t_render, std::function<void()> t_quit, s
     pos.x = m_background.getGlobalBounds().left + m_background.getGlobalBounds().width * 0.2;
     setupButtons(m_close_btn, pos);
 
-    m_play_btn.setAction([&, this]() {
+    m_play_btn.setAction([&, t_change_scene, this]() {
         hide();
-        t_change_scene(new Scene::Chess(t_render, t_quit, t_change_scene, this->m_current_preset, this->m_selected_preset == nullptr));
+        this->m_change_scene(new Scene::Chess(t_render, this->m_quit, this->m_change_scene, this->m_current_preset, this->m_selected_preset == nullptr));
+        return true;
     });
-    m_close_btn.setAction([&]() { hide(); });
+    m_close_btn.setAction([&]() {
+        hide();
+        return true;
+    });
 }
 
 auto PlayPopup::isVisible() -> bool { return m_show; }
 
 auto PlayPopup::setupButtons(Button &btn, sf::Vector2f pos) -> void {
+    sf::RectangleShape *bg = new sf::RectangleShape();
+
     btn.getText().setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
     btn.getText().setFillColor(sf::Color::Black);
     btn.getText().setCharacterSize(40);
 
-    m_background.setSize({140, 60});
-    m_background.setOrigin({70, 30});
-    m_background.setPosition(pos);
+    bg->setSize({140, 60});
+    bg->setOrigin({70, 30});
+    bg->setPosition(pos);
 
     btn.getText().setOrigin(btn.getText().getLocalBounds().width * 0.5f, btn.getText().getLocalBounds().height * 0.8f);
     btn.getText().setPosition(pos);
+    btn.setBackground(bg);
+    btn.setHitbox(bg->getGlobalBounds());
 }
 
 auto PlayPopup::loadPresets() -> void {
     sf::Vector2f size = m_presets_bg.getSize();
     sf::Vector2f pos = m_presets_bg.getPosition();
-    auto &presets = AssetManager::GetInstance();
+    const auto &presets = AssetManager::GetInstance().getPresets();
 
     pos.x += size.x * 0.05;
-    for (auto it = presets.presetCBegin(); it != presets.presetCEnd(); it++) {
+    for (auto it = presets.cbegin(); it != presets.cend(); it++) {
         m_presets.emplace_back(it->second, it->second.getName());
         m_presets.back().btn.setPosition(pos);
         m_presets.back().background.setPosition(m_presets_bg.getPosition().x, pos.y);
@@ -93,7 +103,7 @@ auto PlayPopup::draw(sf::RenderWindow &render) -> void {
     render.draw(m_presets_bg);
     render.draw(m_play_btn);
     render.draw(m_close_btn);
-    m_preview.draw(render);
+    render.draw(m_preview);
 
     if (m_selected_preset)
         m_selected_preset->background.setFillColor(sf::Color(0, 255, 0, 150));
@@ -108,11 +118,11 @@ auto PlayPopup::handleInput(std::function<void(Scene::IScene *)> change_scene, s
     Tile *tile;
     auto callback = [&](std::string name, Team team, Tile *tile) {
         Piece *p = AssetManager::GetInstance().piece_factory.createPiece(name, team, tile->board_pos);
-        Preset::PieceInfo pieceinfo;
-        pieceinfo.name = name;
-        pieceinfo.team = team;
-        pieceinfo.board_pos = tile->board_pos;
-        m_current_preset.addPiecesInfo(pieceinfo);
+        PieceInfo piece_info;
+        piece_info.name = name;
+        piece_info.team = team;
+        piece_info.board_pos = tile->board_pos;
+        m_current_preset.addPiecesInfo(piece_info);
         m_current_preset.setName("");
         m_selected_preset = nullptr;
         m_preview.addPiece(p, tile->board_pos);
@@ -126,16 +136,19 @@ auto PlayPopup::handleInput(std::function<void(Scene::IScene *)> change_scene, s
                 m_piece_selector.hide();
             else if ((tile = m_preview.handleMouseClick(mouse))) {
                 m_selected_preset = nullptr;
-                if (tile->getPiece() != tile->INVALID_INDEX)
-                    m_current_preset.erasePiecesInfo(tile->getPiece());
+                if (tile->piece)
+                    m_current_preset.erasePiecesInfo(tile->board_pos);
                 m_preview.removePiece(tile->board_pos);
             }
 
             return true;
         }
         std::cout << '(' << event.mouseButton.x << ',' << event.mouseButton.y << ")\n";
+        if (m_play_btn.handleEvent(event))
+            return false;
+        if (m_close_btn.handleEvent(event))
+            return true;
         if (m_piece_selector.handleMouseLeft(callback, mouse)) {
-
             return true;
         } else {
             if (m_piece_selector.visible()) {
@@ -207,7 +220,7 @@ auto PlayPopup::show() -> void { m_show = true; }
 PlayPopup::__Btton::__Btton(std::string label_text) {
 
     m_label.setString(label_text);
-    m_label.setFont(AssetManager::GetInstance().getFont("MainMenu.__Btton"));
+    m_label.setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
     m_label.setFillColor(sf::Color::Black);
     m_label.setCharacterSize(40);
 }
@@ -235,7 +248,7 @@ auto PlayPopup::__Btton::draw(sf::RenderWindow &render) -> void {
 
 PlayPopup::PresetEntry::PresetEntry(const Preset &t_preset, std::string str) : preset(t_preset) {
     btn.setString(str);
-    btn.setFont(AssetManager::GetInstance().getFont("MainMenu.__Btton"));
+    btn.setFont(AssetManager::GetInstance().getFont("MainMenu.Button"));
     btn.setFillColor(sf::Color::Black);
     btn.setCharacterSize(20);
 }

@@ -7,17 +7,18 @@
 static sf::Texture generate_pattern(sf::Vector2f rect_size, sf::Vector2u amount, sf::Color primary_color = sf::Color(255, 213, 153),
                                     sf::Color secondary_color = sf::Color(177, 110, 65));
 
-Game::Game(sf::VideoMode t_render, const char *title) : m_render(t_render, title) {
+Game::Game(sf::VideoMode t_render, const char *title) : m_render(t_render, title, sf::Style::Default, sf::ContextSettings(0, 0, 8)) {
     m_change_scene = std::bind(&Game::change_scene, this, std::placeholders::_1);
     m_quit = std::bind(&Game::quit, this);
 }
 
 auto Game::loadAssets() -> void {
+    this->loadPieces();
     this->loadTextures();
     this->loadFonts();
     this->loadSFX();
     this->loadPresets();
-    this->loadPieces();
+    this->loadReplays();
 }
 
 auto Game::gameloop() -> void {
@@ -145,4 +146,28 @@ auto Game::loadPieces() -> void {
     AssetManager::GetInstance().piece_factory.loadPiece("Knight");
     AssetManager::GetInstance().piece_factory.loadPiece("Queen");
     AssetManager::GetInstance().piece_factory.loadPiece("King");
+}
+
+auto Game::loadReplays() -> void {
+    std::filesystem::path path = std::filesystem::current_path();
+    path = path.parent_path();
+    path.append("replays");
+
+    if (!std::filesystem::exists(path))
+        return;
+
+    Replay replay;
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+        if (AssetManager::GetInstance().hasPreset(entry.path().stem().string()))
+            continue;
+
+        try {
+            replay.loadFromFile(entry.path());
+            std::cout << "loaded: " << entry.path().stem() << std::endl;
+            AssetManager::GetInstance().registerReplay(entry.path().stem().string(), replay);
+        } catch (Preset::ParsingError &error) {
+            std::cout << "failed: " << entry.path().stem() << std::endl;
+            std::cout << error.what() << std::endl;
+        }
+    }
 }

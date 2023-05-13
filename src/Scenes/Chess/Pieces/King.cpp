@@ -8,40 +8,42 @@ King::King(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture)
     onDie = [&](Match *match) { match->win(t_team); };
 }
 
-auto King::getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & {
-    this->_move_list_data.clear();
+auto King::getMoves(Match *match) -> std::vector<Move> & {
+    this->m_move_list_data.clear();
 
-    Move::BoardPos new_pos = this->goFowards(this->position);
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    Move::BoardPos new_pos = this->goForwards(this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
-    new_pos = this->goLeft(this->goFowards(this->position));
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    new_pos = this->goLeft(this->goForwards(this->position));
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
-    new_pos = this->goRight(this->goFowards(this->position));
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    new_pos = this->goRight(this->goForwards(this->position));
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
     new_pos = this->goRight(this->position);
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
     new_pos = this->goLeft(this->position);
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
     new_pos = this->goBackwards(this->position);
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
     new_pos = this->goLeft(this->goBackwards(this->position));
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
     new_pos = this->goRight(this->goBackwards(this->position));
-    if (this->inBounds(new_pos, board_size) && !this->isAlly(hasPiece(new_pos)))
-        this->_move_list_data.emplace_back(this, new_pos, this->position);
+    if (this->inBounds(new_pos, match->getBoardSize()) && !this->isAlly(match->hasPiece(new_pos)))
+        this->m_move_list_data.emplace_back(new_pos, this->position);
 
-    return _move_list_data;
+    return m_move_list_data;
 }
+
+auto King::doSpecialMove(Match *match) -> void {}

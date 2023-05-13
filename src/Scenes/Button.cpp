@@ -11,16 +11,16 @@ auto Button::draw(sf::RenderTarget &target, sf::RenderStates states) const -> vo
     target.draw(*m_shape);
     target.draw(m_label);
 }
-auto Button::handleEvent(sf::Event event) -> void {
+auto Button::handleEvent(sf::Event event) -> bool {
     if (event.type != sf::Event::MouseButtonPressed)
-        return;
+        return false;
 
     if (event.mouseButton.button != sf::Mouse::Left)
-        return;
+        return false;
 
     sf::Vector2f mouse(event.mouseButton.x, event.mouseButton.y);
     if (m_hitbox.contains(mouse))
-        m_action();
+        return m_action();
 }
 
 auto Button::getText() -> sf::Text & { return m_label; }

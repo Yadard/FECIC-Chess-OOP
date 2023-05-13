@@ -7,7 +7,8 @@ class Bishop : public Piece {
   public:
     Bishop(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
 
-    auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> MoveList & override;
+    auto getMoves(Match *match) -> std::vector<Move> & override;
+    auto doSpecialMove(Match *match) -> void override;
 };
 
 extern "C" PIECE_API_EXPORT Piece *createPiece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture) {

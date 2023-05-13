@@ -2,18 +2,15 @@
 #define HISTORY_HPP
 
 #include "AssetManager.hpp"
-#include "Scenes/Chess/Move.hpp"
 #include "Pieces/piece.hpp"
+#include "Scenes/Chess/Move.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
 
-
 struct Entry {
-    Entry(Move t_move) : move(t_move) {
-        if (t_move.getPiece())
-            sprite = t_move.getPiece()->getSprite();
+    Entry(Move t_move, sf::Sprite &t_sprite) : move(t_move), sprite(t_sprite) {
 
         text.setFillColor(sf::Color::Black);
         std::string str = "";
@@ -37,18 +34,20 @@ struct Entry {
     inline static bool loaded = false;
 };
 
-class History : sf::RectangleShape {
+class History : public sf::Drawable {
   public:
     History(sf::Vector2f position, sf::Vector2f size);
-    auto draw(sf::RenderWindow &render) -> void;
-    auto update(sf::RenderWindow &render) -> void;
+    auto draw(sf::RenderTarget &target, sf::RenderStates states) const -> void override;
 
-    auto registryMove(Move &move) -> void;
+    auto registryMove(const Move &move, sf::Sprite &sprite) -> void;
+    auto removeLastMove() -> void;
 
   private:
     auto setSpriteSize(sf::Sprite &sprite, sf::Vector2f size) -> sf::Vector2f;
 
-    std::vector<Entry> moves;
+    bool m_need_update = true;
+    std::vector<Entry> m_moves;
+    sf::RectangleShape m_bg;
 };
 
 #endif // HISTORY_HPP

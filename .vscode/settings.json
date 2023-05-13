@@ -98,11 +98,15 @@
         "btns",
         "FECIC",
         "gameloop",
+        "Gameplay",
         "hitbox",
         "Killzones",
         "MAINMENU",
+        "MATCHRESULT",
         "PIXABLER",
         "SFML",
+        "STALLMATE",
+        "TEXTINPUT",
         "Valenzka"
     ],
 }

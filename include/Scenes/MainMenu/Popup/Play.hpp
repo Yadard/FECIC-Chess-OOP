@@ -102,6 +102,8 @@ class PlayPopup {
     sf::RectangleShape m_background;
     sf::RectangleShape m_presets_bg;
     std::vector<PresetEntry> m_presets;
+    std::function<void()> m_quit;
+    std::function<void(Scene::IScene *)> m_change_scene;
 
     // TextInput m_row, m_col;
     Board m_preview;

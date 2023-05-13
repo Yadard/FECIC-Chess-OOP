@@ -1,8 +1,9 @@
-#ifndef PRESET_H
-#define PRESET_H
+#ifndef REPLAY_HPP
+#define REPLAY_HPP
 
+#include "Preset.hpp"
+#include "Scenes/Chess/Pieces/Piece.hpp"
 #include <SFML/Graphics.hpp>
-#include <Scenes/Chess/Pieces/Piece.hpp>
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -10,9 +11,10 @@
 #include <sstream>
 #include <string>
 
-class Preset {
+class Replay {
   public:
-    Preset();
+    Replay();
+    Replay(std::string t_name, sf::Vector2u t_board_size, std::vector<PieceInfo> &t_pieces, std::vector<Move> &t_moves);
     class ParsingError : public std::exception {
       public:
         ParsingError(const std::string &errorMsg) : errorMsg_(errorMsg) {}
@@ -39,20 +41,33 @@ class Preset {
 
     auto loadFromMemory(const char *memory) -> void;
 
+    auto del() -> void;
     auto save() -> void;
 
-    auto setBoardSize(sf::Vector2u board_size) -> void;
+    auto copyPreset(Preset &preset) -> void;
+
+    auto getName() const -> const std::string &;
     auto setName(std::string name) -> void;
-    auto addPiecesInfo(PieceInfo piece) -> void;
-    auto erasePiecesInfo(sf::Vector2u pos) -> void;
 
     auto getBoardSize() const -> sf::Vector2u;
-    auto getName() const -> const std::string &;
+    auto setBoardSize(sf::Vector2u board_size) -> void;
+
     auto getPiecesInfo() const -> const std::vector<PieceInfo> &;
+    auto addPieceInfo(PieceInfo piece_info) -> void;
+
+    auto getMoves() const -> const std::vector<Move> &;
+    auto addMove(Move move) -> void;
 
   private:
+    auto isValidName(std::string_view name) -> bool;
+    auto isValidBoardSize(sf::Vector2u board_size) -> bool;
+    auto isValidPieceInfo(PieceInfo piece_info) -> bool;
+    auto isValidMove(Move move) -> bool;
+    auto inBounds(sf::Vector2u pos) -> bool;
+
     auto parseInput(ParsingInfo &parsing_info, std::istream &input_raw) -> void;
     auto parsePieces(ParsingInfo parsing_info) -> Team;
+    auto parseMoves(ParsingInfo parsing_info) -> void;
 
     auto prepareInput(std::string &line) -> std::string;
     auto isValidPieceIdentifier(std::string_view id) -> bool;
@@ -61,11 +76,11 @@ class Preset {
     auto isOpeningToken(const char c) -> bool;
     auto isClosingToken(const char c) -> bool;
 
-    sf::Vector2u m_board_size;
     std::string m_name;
-    inline static std::stringstream m_error_msg;
-
+    sf::Vector2u m_board_size;
     std::vector<PieceInfo> m_pieces;
+    std::vector<Move> m_moves;
+    inline static std::stringstream m_error_msg;
 };
 
-#endif // PRESET_H
+#endif // REPLAY_HPP

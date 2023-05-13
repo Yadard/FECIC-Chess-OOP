@@ -11,13 +11,6 @@ FetchContent_MakeAvailable(googletest)
 function(CreateTest test)
     message("config for test_${test}")
 
-    add_executable(
-        ${test}
-        ${PROJECT_SOURCE_DIR}/test/test_${test}.cpp
-        ${PROJECT_SOURCE_DIR}/src/Preset.cpp
-        ${PROJECT_SOURCE_DIR}/src/Scenes/Chess/Pieces/Piece.cpp
-    )
-
     target_link_libraries(
         ${test}
         GTest::gtest_main
@@ -47,10 +40,26 @@ function(CreateTest test)
             COMMAND_EXPAND_LISTS
         )
     endif ()
+
+    gtest_discover_tests(${test} PROPERTIES TEST_DISCOVERY_TIMEOUT 600)
 endfunction()
 
-
-CreateTest(preset)
 include(GoogleTest)
-gtest_discover_tests(preset PROPERTIES TEST_DISCOVERY_TIMEOUT 600)
+add_executable(
+        Preset
+        ${PROJECT_SOURCE_DIR}/test/test_preset.cpp
+        ${PROJECT_SOURCE_DIR}/src/Preset.cpp
+        ${PROJECT_SOURCE_DIR}/src/Scenes/Chess/Pieces/Piece.cpp
+    )
+CreateTest(Preset)
+add_executable(
+        Replay
+        ${PROJECT_SOURCE_DIR}/test/test_replay.cpp
+        ${PROJECT_SOURCE_DIR}/src/Preset.cpp
+        ${PROJECT_SOURCE_DIR}/src/Replay.cpp
+        ${PROJECT_SOURCE_DIR}/src/Scenes/Chess/Pieces/Piece.cpp
+        ${PROJECT_SOURCE_DIR}/src/Scenes/Chess/Move.cpp
+    )
+CreateTest(Replay)
+
 

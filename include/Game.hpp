@@ -25,6 +25,7 @@ class Game {
     auto loadFonts() -> void;
     auto loadSFX() -> void;
     auto loadPresets() -> void;
+    auto loadReplays() -> void;
     auto loadPieces() -> void;
 
     sf::RenderWindow m_render;

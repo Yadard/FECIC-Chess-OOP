@@ -20,15 +20,19 @@ auto AssetManager::registerFont(std::string key, sf::Font font) -> void { this->
 auto AssetManager::hasFont(std::string key) -> bool { return this->m_fonts.contains(key); }
 auto AssetManager::getFont(std::string key) -> const sf::Font & { return this->m_fonts.at(key); }
 
-auto AssetManager::registerSFX(std::string key, sf::SoundBuffer sfx) -> void { m_sfx[key] = sfx; }
-auto AssetManager::hasSFX(std::string key) -> bool { return m_sfx.contains(key); }
-auto AssetManager::getSFX(std::string key) -> const sf::SoundBuffer & { return m_sfx.at(key); }
+auto AssetManager::registerSFX(std::string key, sf::SoundBuffer sfx) -> void { m_sfxs[key] = sfx; }
+auto AssetManager::hasSFX(std::string key) -> bool { return m_sfxs.contains(key); }
+auto AssetManager::getSFX(std::string key) -> const sf::SoundBuffer & { return m_sfxs.at(key); }
 
 auto AssetManager::registerPreset(std::string key, Preset preset) -> void { m_presets[key] = preset; }
-auto AssetManager::hasPreset(std::string key) -> bool { return m_presets.contains(key); }
-auto AssetManager::getPreset(std::string key) -> const Preset & { return m_presets.at(key); }
-auto AssetManager::presetCBegin() -> std::unordered_map<std::string, Preset>::const_iterator { return m_presets.cbegin(); }
-auto AssetManager::presetCEnd() -> std::unordered_map<std::string, Preset>::const_iterator { return m_presets.cend(); }
+auto AssetManager::hasPreset(std::string key) const -> bool { return m_presets.contains(key); }
+auto AssetManager::getPreset(std::string key) const -> const Preset & { return m_presets.at(key); }
+auto AssetManager::getPresets() const -> const std::unordered_map<std::string, Preset> & { return m_presets; }
+
+auto AssetManager::registerReplay(std::string key, Replay Replay) -> void { m_replays[key] = Replay; }
+auto AssetManager::hasReplay(std::string key) const -> bool { return m_replays.contains(key); }
+auto AssetManager::getReplay(std::string key) const -> const Replay & { return m_replays.at(key); }
+auto AssetManager::getReplays() const -> const std::unordered_map<std::string, Replay> & { return m_replays; }
 
 AssetManager::PieceFactory::~PieceFactory() {
     for (auto &entry : m_pieces) {

@@ -21,16 +21,21 @@ class Piece;
 #define SFML_API_IMPORT __attribute__((__visibility__("default")))
 #endif
 
-using MoveList = std::vector<Move>;
-
 using PieceMaker = Piece *(*)(Team, Move::BoardPos, const sf::Texture &t_texture);
+
+struct PieceInfo {
+    std::string name;
+    sf::Vector2u board_pos;
+    Team team;
+};
 
 class Piece {
   public:
     Piece(Team t_team, Move::BoardPos t_position, const sf::Texture &t_texture);
-    virtual auto getMoves(std::function<Piece *(Move::BoardPos)> hasPiece, Move::BoardPos board_size) -> const MoveList & = 0;
+    virtual auto getMoves(Match *match) -> const std::vector<Move> & = 0;
+    virtual auto doSpecialMove(Match *match) -> void = 0;
 
-    auto getOldMoves() const -> const MoveList &;
+    auto getOldMoves() const -> const std::vector<Move> &;
     auto getTeam() const -> Team;
     auto getSprite() const -> const sf::Sprite &;
     auto getSprite() -> sf::Sprite &;
@@ -42,7 +47,7 @@ class Piece {
     std::function<void(Match *, std::unique_ptr<Piece> &)> onReachEnd;
 
   protected:
-    auto goFowards(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
+    auto goForwards(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
     auto goBackwards(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
     auto goLeft(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
     auto goRight(Move::BoardPos position, size_t amount = 1) -> Move::BoardPos;
@@ -51,9 +56,9 @@ class Piece {
     auto isEnemy(Piece *piece) -> bool;
     auto isAlly(Piece *piece) -> bool;
 
-    sf::Sprite _sprite;
-    MoveList _move_list_data;
-    Team _team;
+    sf::Sprite m_sprite;
+    std::vector<Move> m_move_list_data;
+    Team m_team;
 };
 
 #endif // PIECE_HPP

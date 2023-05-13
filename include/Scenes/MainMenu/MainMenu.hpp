@@ -5,8 +5,14 @@
 #include "Scenes/Button.hpp"
 #include "Scenes/MainMenu/Logo.hpp"
 #include "Scenes/MainMenu/Popup/Play.hpp"
+#include "Scenes/MainMenu/Popup/Replay.hpp"
+#include "Scenes/Replay/ReplayPlayer.hpp"
 #include "Scenes/Scene.hpp"
+
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include <iostream>
+
 
 namespace Scene {
 
@@ -33,7 +39,8 @@ class MainMenu : public IScene {
     sf::Sprite m_piece;
     sf::FloatRect m_mouse_hitbox;
 
-    PlayPopup m_popup;
+    ReplayPopup m_replay_popup;
+    PlayPopup m_play_popup;
     bool m_ugly_fix = false;
 
     sf::Sound m_move_sfx;

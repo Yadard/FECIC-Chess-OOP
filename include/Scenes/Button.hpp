@@ -7,10 +7,10 @@
 
 class Button : public sf::Drawable, public sf::Transformable {
   public:
-    using Action = std::function<void()>;
+    using Action = std::function<bool()>;
 
     auto draw(sf::RenderTarget &target, sf::RenderStates states) const -> void override;
-    auto handleEvent(sf::Event event) -> void;
+    auto handleEvent(sf::Event event) -> bool;
 
     auto getText() -> sf::Text &;
     auto getBackground() -> sf::Drawable *;

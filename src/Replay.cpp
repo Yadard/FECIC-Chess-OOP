@@ -2,7 +2,7 @@
 #include "pch.hpp"
 // clang-format on
 
-#include "Preset.hpp"
+#include "Replay.hpp"
 
 struct Entry {
     std::string_view identifier, value;
@@ -25,9 +25,15 @@ static Entry split(std::string_view str, std::string_view separator) {
     return entry;
 }
 
-Preset::Preset() : m_name(""), m_board_size(0, 0) {}
+Replay::Replay() : m_name(""), m_board_size(0, 0) {}
+Replay::Replay(std::string t_name, sf::Vector2u t_board_size, std::vector<PieceInfo> &t_pieces, std::vector<Move> &t_moves) {
+    m_name = t_name;
+    m_board_size = t_board_size;
+    m_pieces.assign(t_pieces.cbegin(), t_pieces.cend());
+    m_moves.assign(t_moves.cbegin(), t_moves.cend());
+}
 
-auto Preset::loadFromFile(const char *path) -> void {
+auto Replay::loadFromFile(const char *path) -> void {
     std::ifstream file(path);
     bool parsing_pieces = false;
     ParsingInfo parse_info;
@@ -45,7 +51,7 @@ auto Preset::loadFromFile(const char *path) -> void {
     file.close();
 }
 
-auto Preset::loadFromMemory(const char *memory) -> void {
+auto Replay::loadFromMemory(const char *memory) -> void {
     std::stringstream stream(memory);
     ParsingInfo parse_info;
     parse_info.file_name = "<Memory>";
@@ -53,10 +59,25 @@ auto Preset::loadFromMemory(const char *memory) -> void {
     this->parseInput(parse_info, stream);
 }
 
-auto Preset::loadFromFile(const std::filesystem::path &path) -> void { this->loadFromFile(path.string().c_str()); }
-auto Preset::save() -> void {
-    std::cout << "Saving preset " << this->m_name << std::endl;
+auto Replay::loadFromFile(const std::filesystem::path &path) -> void { this->loadFromFile(path.string().c_str()); }
 
+auto Replay::del() -> void {
+    std::filesystem::path cwd = std::filesystem::current_path();
+    std::filesystem::path path = cwd.parent_path();
+    path.append("replays");
+    if (!std::filesystem::exists(path))
+        return;
+
+    std::string filename(m_name + ".replay");
+    path.append(filename);
+
+    if (!std::filesystem::exists(path))
+        return;
+
+    std::filesystem::remove(path);
+}
+
+auto Replay::save() -> void {
     std::filesystem::path cwd = std::filesystem::current_path();
     std::filesystem::path path = cwd.parent_path();
     path.append("replays");
@@ -77,27 +98,58 @@ auto Preset::save() -> void {
         else
             file << "WHITE]\n";
     }
-
-    std::cout << "Saved preset " << this->m_name << std::endl;
-}
-
-auto Preset::setBoardSize(sf::Vector2u board_size) -> void { m_board_size = board_size; }
-auto Preset::setName(std::string name) -> void { m_name = name; }
-auto Preset::addPiecesInfo(PieceInfo piece) -> void { m_pieces.push_back(piece); }
-auto Preset::erasePiecesInfo(sf::Vector2u pos) -> void {
-    for (auto it = m_pieces.begin(); it != m_pieces.end(); it++) {
-        if (it->board_pos.x == pos.x && it->board_pos.y == pos.y)
-            m_pieces.erase(it);
+    file << "Moves: " << '\n';
+    for (auto &move : m_moves) {
+        file << '\t' << '[' << move.getMoveOrigin().x << ',' << move.getMoveOrigin().y << "] -> [" << move.getMoveDestination().x << ','
+             << move.getMoveDestination().y << "]\n";
     }
 }
 
-auto Preset::getBoardSize() const -> sf::Vector2u { return this->m_board_size; }
-auto Preset::getName() const -> const std::string & { return this->m_name; }
-auto Preset::getPiecesInfo() const -> const std::vector<PieceInfo> & { return this->m_pieces; }
+auto Replay::copyPreset(Preset &preset) -> void {
+    m_board_size = preset.getBoardSize();
+    m_pieces.assign(preset.getPiecesInfo().cbegin(), preset.getPiecesInfo().cend());
+}
 
-auto Preset::parseInput(ParsingInfo &parsing_info, std::istream &input_raw) -> void {
+auto Replay::getName() const -> const std::string & { return m_name; }
+auto Replay::setName(std::string name) -> void {
+    if (isValidName(name))
+        m_name = name;
+}
+
+auto Replay::getBoardSize() const -> sf::Vector2u { return m_board_size; }
+auto Replay::setBoardSize(sf::Vector2u board_size) -> void {
+    if (isValidBoardSize(board_size)) {
+        m_board_size = board_size;
+    }
+}
+
+auto Replay::getPiecesInfo() const -> const std::vector<PieceInfo> & { return m_pieces; }
+auto Replay::addPieceInfo(PieceInfo piece_info) -> void {
+    if (isValidPieceInfo(piece_info))
+        m_pieces.push_back(piece_info);
+}
+
+auto Replay::getMoves() const -> const std::vector<Move> & { return m_moves; }
+auto Replay::addMove(Move move) -> void {
+    if (isValidMove(move))
+        m_moves.push_back(move);
+}
+
+auto Replay::isValidName(std::string_view name) -> bool {
+    if (name.empty())
+        return false;
+    return std::none_of(name.begin(), name.end(), [](const char c) { return !std::isalpha(c); });
+}
+auto Replay::isValidBoardSize(sf::Vector2u board_size) -> bool { return board_size.x != 0 && board_size.y != 0; }
+auto Replay::isValidPieceInfo(PieceInfo piece_info) -> bool { return inBounds(piece_info.board_pos) && isValidName(piece_info.name); }
+auto Replay::isValidMove(Move move) -> bool { return inBounds(move.getMoveDestination()) && inBounds(move.getMoveOrigin()); }
+
+auto Replay::inBounds(sf::Vector2u pos) -> bool { return (pos.x >= 0 && pos.x < m_board_size.x) && (pos.y >= 0 && pos.y < m_board_size.y); }
+
+auto Replay::parseInput(ParsingInfo &parsing_info, std::istream &input_raw) -> void {
     std::string line;
     bool parsing_pieces = false;
+    bool parsing_moves = false;
     m_pieces.clear();
     PieceParsingInfo piece_info;
 
@@ -121,11 +173,19 @@ auto Preset::parseInput(ParsingInfo &parsing_info, std::istream &input_raw) -> v
                 parsing_pieces = parsed.identifier == "pieces";
             }
 
-        } else {
+        } else if (!parsing_moves) {
+            Entry parsed = split(parsing_info.line_stripped, ":");
+            if (parsed.identifier == "moves") {
+                parsing_moves = true;
+                continue;
+            }
+
             if (this->parsePieces(parsing_info) == Team::BLACK)
                 piece_info.amount_black++;
             else
                 piece_info.amount_white++;
+        } else {
+            this->parseMoves(parsing_info);
         }
     }
 
@@ -163,9 +223,23 @@ auto Preset::parseInput(ParsingInfo &parsing_info, std::istream &input_raw) -> v
         throw ParsingError(m_error_msg.str());
         return;
     }
+
+    if (!parsing_moves) {
+        m_error_msg.str(std::string());
+        m_error_msg << '[' << parsing_info.file_name << "]: Field \"Moves\" wasn't found!";
+        throw ParsingError(m_error_msg.str());
+        return;
+    }
+
+    if (m_moves.empty()) {
+        m_error_msg.str(std::string());
+        m_error_msg << '[' << parsing_info.file_name << "]: There is no moves saved, file is corrupted";
+        throw ParsingError(m_error_msg.str());
+        return;
+    }
 }
 
-auto Preset::parsePieces(ParsingInfo parsing_info) -> Team {
+auto Replay::parsePieces(ParsingInfo parsing_info) -> Team {
     std::string_view input(parsing_info.line_stripped);
     PieceInfo piece;
     size_t opening_token_location = input.npos;
@@ -213,16 +287,59 @@ auto Preset::parsePieces(ParsingInfo parsing_info) -> Team {
             }
         }
     }
+
     return Team::UNKNOWN;
 }
-auto Preset::prepareInput(std::string &line) -> std::string {
+
+auto Replay::parseMoves(ParsingInfo parsing_info) -> void {
+    const uint32_t UNINITIALIZED_BOARDPOS = std::numeric_limits<uint32_t>::max();
+
+    sf::Vector2u origin(UNINITIALIZED_BOARDPOS, UNINITIALIZED_BOARDPOS);
+    sf::Vector2u dest(UNINITIALIZED_BOARDPOS, UNINITIALIZED_BOARDPOS);
+
+    std::string &input(parsing_info.line_stripped);
+
+    size_t start = 0;
+    size_t len = 0;
+
+    for (size_t i = 0; i < input.length(); i++) {
+        const char ch = input[i];
+        if (origin.x == UNINITIALIZED_BOARDPOS) {
+            if (isOpeningToken(ch)) {
+                start = i + 1;
+            } else if (ch == ',') {
+                len = i - start;
+                origin.x = std::stoul(input.substr(start, len));
+                start = i + 1;
+            }
+        } else if (origin.y == UNINITIALIZED_BOARDPOS) {
+            if (isClosingToken(ch)) {
+                len = i - start;
+                origin.y = std::stoul(input.substr(start, len));
+            }
+        } else if (dest.x == UNINITIALIZED_BOARDPOS) {
+            if (isOpeningToken(ch)) {
+                start = i + 1;
+            } else if (ch == ',') {
+                len = i - start;
+                dest.x = std::stoul(input.substr(start, len));
+                start = i + 1;
+            }
+        } else if (dest.y == UNINITIALIZED_BOARDPOS) {
+            if (isClosingToken(ch)) {
+                len = i - start;
+                dest.y = std::stoul(input.substr(start, len));
+            }
+        }
+    }
+
+    m_moves.emplace_back(dest, origin);
+}
+
+auto Replay::prepareInput(std::string &line) -> std::string {
     std::string input_stripped = line;
 
-    input_stripped.erase(std::remove_if(input_stripped.begin(), input_stripped.end(),
-                                        [this](const char c) {
-                                            bool is_token = this->isToken(c);
-                                            return !is_token;
-                                        }),
+    input_stripped.erase(std::remove_if(input_stripped.begin(), input_stripped.end(), [this](const char c) { return !this->isToken(c); }),
                          input_stripped.end());
 
     for (auto &ch : input_stripped) {
@@ -233,6 +350,8 @@ auto Preset::prepareInput(std::string &line) -> std::string {
     return input_stripped;
 }
 
-auto Preset::isToken(const char c) -> bool { return isalnum(c) || isOpeningToken(c) || isClosingToken(c) || c == ',' || c == '\n' || c == ':'; }
-auto Preset::isOpeningToken(const char c) -> bool { return c == '(' || c == '{' || c == '['; }
-auto Preset::isClosingToken(const char c) -> bool { return c == ')' || c == '}' || c == ']'; }
+auto Replay::isToken(const char c) -> bool {
+    return isalnum(c) || isOpeningToken(c) || isClosingToken(c) || c == ',' || c == '\n' || c == ':' || c == '-' || c == '>';
+}
+auto Replay::isOpeningToken(const char c) -> bool { return c == '(' || c == '{' || c == '['; }
+auto Replay::isClosingToken(const char c) -> bool { return c == ')' || c == '}' || c == ']'; }

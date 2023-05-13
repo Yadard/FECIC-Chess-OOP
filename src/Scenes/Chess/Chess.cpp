@@ -7,42 +7,56 @@
 
 Scene::Chess::Chess(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(IScene *)> t_change_scene, Preset &preset, bool new_preset)
     : IScene(render, t_quit, t_change_scene), m_board({5, 95}, {840, 750}, preset.getBoardSize()), m_history({849, 0}, {188, 960}),
-      m_killzones({{0, 0}, {850, 100}}, {{0, 860}, {850, 100}}), m_preset(preset), m_new_preset(new_preset), m_victory(nullptr) {
+      m_killzones({{0, 0}, {850, 100}}, {{0, 860}, {850, 100}}), m_preset(preset), m_new_preset(new_preset), m_match_result(nullptr) {
     loadPresetOnBoard(preset);
     m_viewport = sf::Vector2f(render.getSize().x, render.getSize().y);
+    m_move_sfx.setBuffer(AssetManager::GetInstance().getSFX("MainMenu.PieceMove"));
+
+    m_replay.copyPreset(preset);
 }
 
 auto Scene::Chess::update(sf::RenderWindow &render) -> void {
-    m_killzones.starter_team.update(render);
-    m_killzones.last_team.update(render);
-    m_history.update(render);
-    m_board.update(render);
-
-    if (m_victory)
-        render.draw(*m_victory);
+    if (this->m_match_result)
+        this->m_match_result->update();
+    this->draw(render);
 }
 auto Scene::Chess::draw(sf::RenderWindow &render) -> void {
     m_killzones.starter_team.draw(render);
     m_killzones.last_team.draw(render);
-    m_history.draw(render);
-    m_board.draw(render);
+    render.draw(m_history);
+    render.draw(m_board);
 
-    if (m_victory)
-        render.draw(*m_victory);
+    if (m_match_result)
+        render.draw(*m_match_result);
 }
 
 auto Scene::Chess::win(Team team) -> void {
-    m_victory.reset(new Victory(m_render, m_quit, m_change_scene, team, m_preset, m_new_preset));
-    ;
+    auto mainmenu = [this]() { this->m_change_scene(new Scene::MainMenu(m_render, m_quit, m_change_scene)); };
+    auto play_again = [this]() { this->m_change_scene(new Scene::Chess(m_render, m_quit, m_change_scene, m_preset, m_new_preset)); };
+    sf::Vector2f viewport(m_render.getSize().x, m_render.getSize().y);
+    m_match_result.reset(new Victory(viewport, mainmenu, play_again, m_preset, m_new_preset, m_replay, team));
 }
 
 auto Scene::Chess::createPiece(std::string name, Team team, sf::Vector2u pos) -> Piece * {
     return AssetManager::GetInstance().piece_factory.createPiece(name, team, pos);
 }
 
+auto Scene::Chess::addPiece(Piece *piece, sf::Vector2u pos) -> void {
+    if (piece->getTeam() == Team::BLACK)
+        m_pieces_amount.black++;
+    else
+        m_pieces_amount.white++;
+    m_board.addPiece(piece, pos);
+}
+auto Scene::Chess::hasPiece(sf::Vector2u pos) const -> Piece * { return m_board.getTile(pos).piece.get(); }
+auto Scene::Chess::getBoardSize() const -> sf::Vector2u { return m_board.getBoardDimensions(); }
+
 auto Scene::Chess::handle_input(std::function<void(Scene::IScene *)> change_scene, std::function<void()> quit, sf::Event event) -> void {
-    if (m_victory)
-        m_victory->handleInput(event);
+    if (m_match_result) {
+        m_match_result->handleInput(event);
+        return;
+    }
+
     switch (event.type) {
     case sf::Event::MouseButtonPressed:
         handleMousePress(event);
@@ -74,38 +88,54 @@ auto Scene::Chess::handleMousePress(sf::Event event) -> void {
         Tile &selected_tile = *m_board.getTileFromMousePostion(mouse);
 
         if (m_selected_piece) {
+            if (!selected_tile.move)
+                return;
+
             sf::Vector2u pos = m_selected_piece->position;
-            Piece *piece = selected_tile.move->getPiece();
+            Piece *piece = nullptr;
             if (selected_tile.move) {
                 piece = executeMove(*selected_tile.move);
+                m_replay.addMove(*selected_tile.move);
+                m_move_sfx.play();
+                endTurn();
             }
+
             clearMoves(piece, pos);
-            endTurn();
         } else {
             Piece *piece = nullptr;
-            if (selected_tile.getPiece() != Tile::INVALID_INDEX)
-                piece = m_board.getPiece(selected_tile.getPiece()).get();
+            if (selected_tile.piece)
+                piece = selected_tile.piece.get();
 
             if (piece && piece->getTeam() == m_current_turn) {
                 m_selected_piece = piece;
-                highlightMoves(selected_tile.getPiece());
+                highlightMoves(piece);
             }
         }
 
     } else if (event.mouseButton.button == sf::Mouse::Right) {
-        if (m_selected_piece)
+        if (m_selected_piece) {
             clearMoves(m_selected_piece, m_selected_piece->position);
+            return;
+        }
+
+        if (!m_board.isMouseInBounds(mouse))
+            return;
+
+        Tile &selected_tile = *m_board.getTileFromMousePostion(mouse);
+
+        if (selected_tile.piece && selected_tile.piece->getTeam() == m_current_turn) {
+            selected_tile.piece->doSpecialMove(this);
+            m_replay.addMove(Move(selected_tile.board_pos, selected_tile.board_pos));
+        }
     }
 }
 
 auto Scene::Chess::executeMove(Move &move) -> Piece * {
-    m_history.registryMove(move);
     Tile &tile_dest = m_board.getTile(move.getMoveDestination().y, move.getMoveDestination().x);
     Tile &tile_orig = m_board.getTile(move.getMoveOrigin().y, move.getMoveOrigin().x);
 
-    const Piece *bystander = nullptr;
-    if (tile_dest.getPiece() != Tile::INVALID_INDEX)
-        bystander = m_board.getPiece(tile_dest.getPiece()).get();
+    m_history.registryMove(move, tile_orig.piece->getSprite());
+    const Piece *bystander = tile_dest.piece.get();
 
     if (bystander) {
         if (m_current_turn == Team::WHITE) {
@@ -138,7 +168,7 @@ auto Scene::Chess::loadPresetOnBoard(Preset &preset) -> void {
     }
 }
 
-auto Scene::Chess::highlightMoves(size_t piece_index) -> void { m_board.highlightMoves(piece_index); }
+auto Scene::Chess::highlightMoves(Piece *piece) -> void { m_board.highlightMoves(this, piece); }
 auto Scene::Chess::clearMoves(const Piece *piece, sf::Vector2u pos) -> void {
     Tile &tile = m_board.getTile(pos.y, pos.x);
     tile.setOutlineThickness(0);

@@ -12,5 +12,6 @@
 // SFML
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
 #endif // PCH_HPP

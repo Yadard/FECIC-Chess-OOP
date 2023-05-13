@@ -1,13 +1,11 @@
-#ifndef CHESS_HPP
-#define CHESS_HPP
+#ifndef REPLAYPLAYER_HPP
+#define REPLAYPLAYER_HPP
 
-#include "Preset.hpp"
+#include "Replay.hpp"
 #include "Scenes/Chess/Board.hpp"
 #include "Scenes/Chess/History.hpp"
 #include "Scenes/Chess/KillZone.hpp"
-#include "Scenes/Chess/MatchResult/MatchResult.hpp"
-#include "Scenes/Chess/MatchResult/StallMate.hpp"
-#include "Scenes/Chess/MatchResult/Victory.hpp"
+#include "Scenes/MainMenu/MainMenu.hpp"
 #include "Scenes/Scene.hpp"
 
 #include <SFML/Audio.hpp>
@@ -15,9 +13,9 @@
 #include <functional>
 
 namespace Scene {
-class Chess : public IScene, public Match {
+class ReplayPlayer : public IScene, public Match {
   public:
-    Chess(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(IScene *)> t_change_scene, Preset &preset, bool new_preset = false);
+    ReplayPlayer(sf::RenderWindow &render, std::function<void()> t_quit, std::function<void(IScene *)> t_change_scene, const Replay &replay);
 
     auto update(sf::RenderWindow &render) -> void override;
     auto draw(sf::RenderWindow &render) -> void override;
@@ -31,18 +29,17 @@ class Chess : public IScene, public Match {
     auto endTurn() -> void override;
 
   private:
-    auto loadPresetOnBoard(Preset &preset) -> void;
+    auto loadBoard(const Replay &replay) -> void;
     auto handleMousePress(sf::Event event) -> void;
     auto handleKeyboardPress(sf::Event event) -> void;
 
-    auto executeMove(Move &move) -> Piece *;
+    auto executeMove(const Move &move) -> Piece *;
     auto clearMoves(const Piece *piece, sf::Vector2u pos) -> void;
     auto highlightMoves(Piece *piece) -> void;
-    auto reachedEnemyField(Move &move) -> bool;
+    auto reachedEnemyField(const Move &move) -> bool;
 
     Board m_board;
     History m_history;
-    Preset m_preset;
     Replay m_replay;
     sf::Vector2f m_viewport;
     struct __Killzones {
@@ -50,16 +47,18 @@ class Chess : public IScene, public Match {
 
         __Killzones(KillZone __a, KillZone __b) : starter_team(__a), last_team(__b) {}
     } m_killzones;
-    bool m_new_preset = false;
-    const Piece *m_selected_piece = nullptr;
     Team m_current_turn = Team::WHITE;
     struct {
         size_t white = 0, black = 0;
     } m_pieces_amount;
 
-    std::unique_ptr<MatchResult> m_match_result;
+    const Piece *m_selected_piece;
+    std::vector<Move>::const_iterator m_current_move;
     sf::Sound m_move_sfx;
+    sf::Clock m_clock;
+    sf::Time m_time;
 };
+
 } // namespace Scene
 
-#endif // CHESS_HPP
+#endif // REPLAYPLAYER_HPP
